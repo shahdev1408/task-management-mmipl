@@ -4,7 +4,6 @@ import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
 import { writeFile, mkdir } from "fs/promises"
 import { join } from "path"
-import { validateRemark } from "@/lib/aiValidator"
 
 export async function POST(req, { params }) {
   const session = await getServerSession(authOptions)
@@ -27,20 +26,8 @@ export async function POST(req, { params }) {
       message: "Remark is too short. Please describe your work in at least 10 characters."
     }, { status: 400 })
 
-  // AI validation
-  const hasAttachment = file && file.size > 0
-  const aiResult = await validateRemark(remark, hasAttachment)
-
-  if (!aiResult.valid) {
-    return NextResponse.json({
-      warning: true,
-      message: `⚠️ AI Review: ${aiResult.reason}`
-    }, { status: 400 })
-  }
-
-  // Handle file upload
   let attachmentPath = null
-  if (hasAttachment) {
+  if (file && file.size > 0) {
     const bytes     = await file.arrayBuffer()
     const buffer    = Buffer.from(bytes)
     const uploadDir = join(process.cwd(), "public", "uploads")
