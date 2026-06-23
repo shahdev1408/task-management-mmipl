@@ -11,9 +11,12 @@ cloudinary.config({
 async function uploadToCloudinary(file) {
   const bytes  = await file.arrayBuffer()
   const buffer = Buffer.from(bytes)
+  const isImage = file.type.startsWith("image/")
+  const resourceType = isImage ? "image" : "raw"
+
   return new Promise((resolve, reject) => {
     cloudinary.uploader.upload_stream(
-      { folder: "taskflow", resource_type: "auto" },
+      { folder: "taskflow", resource_type: resourceType },
       (error, result) => {
         if (error) reject(error)
         else resolve(result.secure_url)
