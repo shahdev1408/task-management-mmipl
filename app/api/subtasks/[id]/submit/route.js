@@ -2,8 +2,28 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
-import { writeFile, mkdir } from "fs/promises"
-import { join } from "path"
+import { v2 as cloudinary } from "cloudinary"
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key:    process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+})
+
+async function uploadToCloudinary(file) {
+  const bytes  = await file.arrayBuffer()
+  const buffer = Buffer.from(bytes)
+
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader.upload_stream(
+      { folder: "taskflow", resource_type: "auto" },
+      (error, result) => {
+        if (error) reject(error)
+        else resolve(result.secure_url)
+      }
+    ).end(buffer)
+  })
+}
 
 export async function POST(req, { params }) {
   const session = await getServerSession(authOptions)
@@ -27,14 +47,21 @@ export async function POST(req, { params }) {
     }, { status: 400 })
 
   let attachmentPath = null
+
   if (file && file.size > 0) {
-    const bytes     = await file.arrayBuffer()
-    const buffer    = Buffer.from(bytes)
-    const uploadDir = join(process.cwd(), "public", "uploads")
-    await mkdir(uploadDir, { recursive: true })
-    const filename  = `${Date.now()}-${file.name.replace(/\s+/g, "-")}`
-    await writeFile(join(uploadDir, filename), buffer)
-    attachmentPath  = `/uploads/${filename}`
+    if (process.env.NODE_ENV === "development") {
+      const { writeFile, mkdir } = await import("fs/promises")
+      const { join } = await import("path")
+      const bytes     = await file.arrayBuffer()
+      const buffer    = Buffer.from(bytes)
+      const uploadDir = join(process.cwd(), "public", "uploads")
+      await mkdir(uploadDir, { recursive: true })
+      const filename  = `${Date.now()}-${file.name.replace(/\s+/g, "-")}`
+      await writeFile(join(uploadDir, filename), buffer)
+      attachmentPath  = `/uploads/${filename}`
+    } else {
+      attachmentPath = await uploadToCloudinary(file)
+    }
   }
 
   const subTask = await prisma.subTask.findUnique({ where: { id } })
