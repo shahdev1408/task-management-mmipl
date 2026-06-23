@@ -13,7 +13,6 @@ cloudinary.config({
 async function uploadToCloudinary(file) {
   const bytes  = await file.arrayBuffer()
   const buffer = Buffer.from(bytes)
-
   return new Promise((resolve, reject) => {
     cloudinary.uploader.upload_stream(
       { folder: "taskflow", resource_type: "auto" },
@@ -49,7 +48,11 @@ export async function POST(req, { params }) {
   let attachmentPath = null
 
   if (file && file.size > 0) {
-    if (process.env.NODE_ENV === "development") {
+    const isVercel = !!process.env.VERCEL
+
+    if (isVercel) {
+      attachmentPath = await uploadToCloudinary(file)
+    } else {
       const { writeFile, mkdir } = await import("fs/promises")
       const { join } = await import("path")
       const bytes     = await file.arrayBuffer()
@@ -59,8 +62,6 @@ export async function POST(req, { params }) {
       const filename  = `${Date.now()}-${file.name.replace(/\s+/g, "-")}`
       await writeFile(join(uploadDir, filename), buffer)
       attachmentPath  = `/uploads/${filename}`
-    } else {
-      attachmentPath = await uploadToCloudinary(file)
     }
   }
 
