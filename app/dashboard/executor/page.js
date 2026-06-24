@@ -1,7 +1,7 @@
 "use client"
-import { Fragment, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import {
-  CheckCircle2, Clock, AlertTriangle, Package,
+  CheckCircle2, AlertTriangle, Package,
   RefreshCw, Calendar, Paperclip, X, Upload,
   PlayCircle, ChevronUp
 } from "lucide-react"
@@ -14,6 +14,33 @@ const TABS = [
   { key: "completed", label: "Completed", color: "green" },
   { key: "delayed",   label: "Delayed",   color: "red"   },
 ]
+
+const TAB_COLORS = {
+  gray:  { border: "border-gray-500 text-gray-700",     badge: "bg-gray-100 text-gray-700"    },
+  blue:  { border: "border-indigo-500 text-indigo-700", badge: "bg-indigo-100 text-indigo-700"},
+  green: { border: "border-emerald-500 text-emerald-700", badge: "bg-emerald-100 text-emerald-700"},
+  red:   { border: "border-red-500 text-red-700",       badge: "bg-red-100 text-red-700"      },
+}
+
+function getAttachmentUrl(path) {
+  if (!path) return null
+  if (path.includes("cloudinary.com")) {
+    return path
+      .replace("/image/upload/", "/raw/upload/")
+      .replace("/upload/", "/upload/fl_attachment/")
+  }
+  return path
+}
+
+function MsgBox({ msg }) {
+  if (!msg.text) return null
+  const cls = msg.type === "success"
+    ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+    : msg.type === "warning"
+    ? "bg-amber-50 border-amber-200 text-amber-700"
+    : "bg-red-50 border-red-200 text-red-700"
+  return <div className={`text-xs px-3 py-2.5 rounded-lg border ${cls}`}>{msg.text}</div>
+}
 
 export default function ExecutorDashboard() {
   const [data, setData]             = useState(null)
@@ -140,25 +167,15 @@ export default function ExecutorDashboard() {
           {TABS.map(t => {
             const count  = data.counts[t.key] || 0
             const active = activeTab === t.key
-            const colors = {
-              gray:  "border-gray-500 text-gray-700",
-              blue:  "border-indigo-500 text-indigo-700",
-              green: "border-emerald-500 text-emerald-700",
-              red:   "border-red-500 text-red-700",
-            }
-            const badges = {
-              gray:  "bg-gray-100 text-gray-700",
-              blue:  "bg-indigo-100 text-indigo-700",
-              green: "bg-emerald-100 text-emerald-700",
-              red:   "bg-red-100 text-red-700",
-            }
+            const c      = TAB_COLORS[t.color]
             return (
-              <button key={t.key} onClick={() => { setActiveTab(t.key); resetForm() }}
+              <button key={t.key}
+                onClick={() => { setActiveTab(t.key); resetForm() }}
                 className={`flex items-center gap-2 px-5 py-3.5 text-sm font-medium border-b-2 transition-colors ${
-                  active ? `${colors[t.color]} bg-gray-50` : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                  active ? `${c.border} bg-gray-50` : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50"
                 }`}>
                 {t.label}
-                <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${active ? badges[t.color] : "bg-gray-100 text-gray-500"}`}>
+                <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${active ? c.badge : "bg-gray-100 text-gray-500"}`}>
                   {count}
                 </span>
               </button>
@@ -202,19 +219,17 @@ export default function ExecutorDashboard() {
               )}
 
               {currentList.map(s => (
-                <Fragment key={s.id}>
+                <tbody key={s.id}>
                   <tr className="hover:bg-gray-50 transition-colors">
                     <td className="px-5 py-3.5">
                       <p className="font-medium text-gray-900">{s.name}</p>
-                      {s.remark && <p className="text-xs text-gray-400 mt-0.5 truncate max-w-xs">{s.remark}</p>}
+                      {s.remark && (
+                        <p className="text-xs text-gray-400 mt-0.5 truncate max-w-xs">{s.remark}</p>
+                      )}
                       {s.attachmentPath && (
-                        <a
-                          href={s.attachmentPath.replace("/image/upload/", "/raw/upload/")}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="flex items-center gap-1 text-xs text-indigo-600 hover:underline mt-0.5"
-                        >
-                          <Paperclip className="w-3 h-3" /> View attachment
+                        <a href={getAttachmentUrl(s.attachmentPath)} target="_blank" rel="noreferrer"
+                          className="flex items-center gap-1 text-xs text-indigo-600 hover:underline mt-0.5">
+                          <Paperclip className="w-3 h-3" /> Download attachment
                         </a>
                       )}
                     </td>
@@ -235,15 +250,13 @@ export default function ExecutorDashboard() {
 
                     <td className="px-4 py-3.5">
                       {activeTab === "allotted" && scheduling !== s.id && (
-                        <button
-                          onClick={() => { setScheduling(s.id); setSchedDate("") }}
+                        <button onClick={() => { setScheduling(s.id); setSchedDate("") }}
                           className="flex items-center gap-1.5 text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition-colors">
                           <PlayCircle className="w-3.5 h-3.5" /> Accept
                         </button>
                       )}
                       {activeTab === "onHand" && (
-                        <button
-                          onClick={() => { setSubmitting(submitting === s.id ? null : s.id); setMsg({ text: "", type: "" }) }}
+                        <button onClick={() => { setSubmitting(submitting === s.id ? null : s.id); setMsg({ text: "", type: "" }) }}
                           className="flex items-center gap-1.5 text-xs bg-emerald-600 text-white px-3 py-1.5 rounded-lg hover:bg-emerald-700 transition-colors">
                           {submitting === s.id
                             ? <><ChevronUp className="w-3.5 h-3.5" /> Cancel</>
@@ -252,8 +265,7 @@ export default function ExecutorDashboard() {
                         </button>
                       )}
                       {activeTab === "delayed" && (
-                        <button
-                          onClick={() => { setActiveTab("onHand"); setSubmitting(s.id) }}
+                        <button onClick={() => { setActiveTab("onHand"); setSubmitting(s.id) }}
                           className="flex items-center gap-1.5 text-xs bg-red-600 text-white px-3 py-1.5 rounded-lg hover:bg-red-700 transition-colors">
                           <Upload className="w-3.5 h-3.5" /> Submit late
                         </button>
@@ -262,9 +274,8 @@ export default function ExecutorDashboard() {
                     </td>
                   </tr>
 
-                  {/* Schedule date row — Allotted tab */}
                   {activeTab === "allotted" && scheduling === s.id && (
-                    <tr key={`sched-${s.id}`}>
+                    <tr>
                       <td colSpan={6} className="px-5 py-4 bg-indigo-50 border-b border-indigo-100">
                         <div className="flex items-center gap-3 flex-wrap">
                           <span className="text-xs text-gray-700 font-medium">Schedule completion date:</span>
@@ -287,9 +298,8 @@ export default function ExecutorDashboard() {
                     </tr>
                   )}
 
-                  {/* Submit form row — OnHand tab */}
                   {submitting === s.id && activeTab === "onHand" && (
-                    <tr key={`form-${s.id}`}>
+                    <tr>
                       <td colSpan={6} className="px-5 py-5 bg-indigo-50 border-b border-indigo-100">
                         <div className="max-w-xl space-y-4">
 
@@ -302,15 +312,7 @@ export default function ExecutorDashboard() {
                             </button>
                           </div>
 
-                          {msg.text && (
-                            <div className={`text-xs px-3 py-2.5 rounded-lg border ${
-                              msg.type === "success" ? "bg-emerald-50 border-emerald-200 text-emerald-700"
-                              : msg.type === "warning" ? "bg-amber-50 border-amber-200 text-amber-700"
-                              : "bg-red-50 border-red-200 text-red-700"
-                            }`}>
-                              {msg.text}
-                            </div>
-                          )}
+                          <MsgBox msg={msg} />
 
                           <div>
                             <p className="text-xs font-medium text-gray-700 mb-2">Submission status</p>
@@ -387,8 +389,9 @@ export default function ExecutorDashboard() {
                       </td>
                     </tr>
                   )}
-                </Fragment>
+                </tbody>
               ))}
+
             </tbody>
           </table>
         </div>
