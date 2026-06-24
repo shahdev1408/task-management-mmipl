@@ -9,24 +9,34 @@ cloudinary.config({
 })
 
 async function uploadToCloudinary(file) {
-  const bytes    = await file.arrayBuffer()
-  const buffer   = Buffer.from(bytes)
-  const isImage  = file.type.startsWith("image/")
-  const ext      = file.name.split(".").pop().toLowerCase()
-  const baseName = file.name.replace(/\.[^/.]+$/, "").replace(/\s+/g, "-")
+  const bytes = await file.arrayBuffer()
+  const buffer = Buffer.from(bytes)
+
+  const isImage = file.type.startsWith("image/")
+  const isPdf = file.type === "application/pdf"
+
+  const ext = file.name.split(".").pop().toLowerCase()
+  const baseName = file.name
+    .replace(/\.[^/.]+$/, "")
+    .replace(/\s+/g, "-")
+
   const publicId = `${Date.now()}-${baseName}`
 
   return new Promise((resolve, reject) => {
     cloudinary.uploader.upload_stream(
       {
-        folder:        "taskflow",
-        resource_type: isImage ? "image" : "raw",
-        public_id:     publicId,
-        format:        ext,
+        folder: "taskflow",
+        // Images + PDFs can open in browser
+        resource_type: isImage || isPdf ? "image" : "raw",
+        public_id: publicId,
       },
       (error, result) => {
-        if (error) reject(error)
-        else resolve(result.secure_url)
+        if (error) {
+          reject(error)
+        } else {
+          console.log("Cloudinary Upload:", result)
+          resolve(result.secure_url)
+        }
       }
     ).end(buffer)
   })

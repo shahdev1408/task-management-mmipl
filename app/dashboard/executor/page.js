@@ -22,16 +22,6 @@ const TAB_COLORS = {
   red:   { border: "border-red-500 text-red-700",       badge: "bg-red-100 text-red-700"      },
 }
 
-function getAttachmentUrl(path) {
-  if (!path) return null
-  if (path.includes("cloudinary.com")) {
-    return path
-      .replace("/image/upload/", "/raw/upload/")
-      .replace("/upload/", "/upload/fl_attachment/")
-  }
-  return path
-}
-
 function MsgBox({ msg }) {
   if (!msg.text) return null
   const cls = msg.type === "success"
@@ -227,9 +217,14 @@ export default function ExecutorDashboard() {
                         <p className="text-xs text-gray-400 mt-0.5 truncate max-w-xs">{s.remark}</p>
                       )}
                       {s.attachmentPath && (
-                        <a href={getAttachmentUrl(s.attachmentPath)} target="_blank" rel="noreferrer"
-                          className="flex items-center gap-1 text-xs text-indigo-600 hover:underline mt-0.5">
-                          <Paperclip className="w-3 h-3" /> Download attachment
+                        <a
+                          href={s.attachmentPath}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center gap-1 text-xs text-indigo-600 hover:underline mt-0.5"
+                        >
+                          <Paperclip className="w-3 h-3" />
+                          Open Attachment
                         </a>
                       )}
                     </td>
