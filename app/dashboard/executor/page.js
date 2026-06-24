@@ -1,9 +1,9 @@
 "use client"
-import { useEffect, useState } from "react"
+import { Fragment, useEffect, useState } from "react"
 import {
   CheckCircle2, Clock, AlertTriangle, Package,
   RefreshCw, Calendar, Paperclip, X, Upload,
-  InboxIcon, PlayCircle, ChevronDown, ChevronUp
+  PlayCircle, ChevronUp
 } from "lucide-react"
 import StatCard from "@/components/dashboard/StatCard"
 import Badge from "@/components/ui/Badge"
@@ -20,15 +20,11 @@ export default function ExecutorDashboard() {
   const [loading, setLoading]       = useState(true)
   const [activeTab, setActiveTab]   = useState("allotted")
   const [submitting, setSubmitting] = useState(null)
-  const [form, setForm]             = useState({
-    status: "SUCCESSFUL",
-    remark: "",
-    file:   null,
-  })
-  const [msg, setMsg]         = useState({ text: "", type: "" })
-  const [uploading, setUploading] = useState(false)
   const [scheduling, setScheduling] = useState(null)
-const [schedDate, setSchedDate]   = useState("")
+  const [schedDate, setSchedDate]   = useState("")
+  const [form, setForm]             = useState({ status: "SUCCESSFUL", remark: "", file: null })
+  const [msg, setMsg]               = useState({ text: "", type: "" })
+  const [uploading, setUploading]   = useState(false)
 
   async function load() {
     setLoading(true)
@@ -40,39 +36,31 @@ const [schedDate, setSchedDate]   = useState("")
 
   useEffect(() => { load() }, [])
 
- // Replace the acceptTask function with:
-async function acceptTask(id, scheduledDate) {
-  const date = scheduledDate || new Date().toISOString()
-  await fetch(`/api/subtasks/${id}/accept`, {
-    method:  "POST",
-    headers: { "Content-Type": "application/json" },
-    body:    JSON.stringify({ scheduledDate: date }),
-  })
-  setScheduling(null)
-  load()
-}
+  async function acceptTask(id, scheduledDate) {
+    const date = scheduledDate || new Date().toISOString()
+    await fetch(`/api/subtasks/${id}/accept`, {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify({ scheduledDate: date }),
+    })
+    setScheduling(null)
+    load()
+  }
 
   async function submitTask(id) {
     setMsg({ text: "", type: "" })
-
     if (!form.remark || form.remark.trim().length < 10) {
       setMsg({ text: "Remark must be at least 10 characters.", type: "error" })
       return
     }
-
     setUploading(true)
     const fd = new FormData()
     fd.append("submissionStatus", form.status)
     fd.append("remark", form.remark)
     if (form.file) fd.append("file", form.file)
-
-    const res  = await fetch(`/api/subtasks/${id}/submit`, {
-      method: "POST",
-      body:   fd,
-    })
+    const res  = await fetch(`/api/subtasks/${id}/submit`, { method: "POST", body: fd })
     const json = await res.json()
     setUploading(false)
-
     if (json.warning || !res.ok) {
       setMsg({ text: json.message || json.error || "Something went wrong", type: "warning" })
     } else {
@@ -104,53 +92,23 @@ async function acceptTask(id, scheduledDate) {
   return (
     <div className="space-y-6">
 
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold text-gray-900">My Tasks</h1>
           <p className="text-sm text-gray-500 mt-0.5">Your assigned sub-tasks</p>
         </div>
-        <button
-          onClick={load}
-          className="flex items-center gap-1.5 text-sm text-gray-500 px-3 py-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-        >
+        <button onClick={load} className="flex items-center gap-1.5 text-sm text-gray-500 px-3 py-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
           <RefreshCw className="w-3.5 h-3.5" /> Refresh
         </button>
       </div>
 
-      {/* Stat cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <StatCard
-          label="Allotted"
-          value={data.counts.allotted}
-          icon={Package}
-          color="gray"
-          subtext="Pending acceptance"
-        />
-        <StatCard
-          label="On-Hand"
-          value={data.counts.onHand}
-          icon={PlayCircle}
-          color="blue"
-          subtext="Accepted, in progress"
-        />
-        <StatCard
-          label="Completed"
-          value={data.counts.completed}
-          icon={CheckCircle2}
-          color="green"
-          subtext="Submitted"
-        />
-        <StatCard
-          label="Delayed"
-          value={data.counts.delayed}
-          icon={AlertTriangle}
-          color="red"
-          subtext="Past due date"
-        />
+        <StatCard label="Allotted"  value={data.counts.allotted}  icon={Package}       color="gray"  subtext="Pending acceptance"   />
+        <StatCard label="On-Hand"   value={data.counts.onHand}    icon={PlayCircle}    color="blue"  subtext="Accepted, in progress" />
+        <StatCard label="Completed" value={data.counts.completed} icon={CheckCircle2}  color="green" subtext="Submitted"             />
+        <StatCard label="Delayed"   value={data.counts.delayed}   icon={AlertTriangle} color="red"   subtext="Past due date"         />
       </div>
 
-      {/* Due soon alert */}
       {data.dueSoon?.length > 0 && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
           <div className="flex items-center gap-2 mb-2">
@@ -165,9 +123,7 @@ async function acceptTask(id, scheduledDate) {
                 <div className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500 flex-shrink-0" />
                   <span className="text-sm text-amber-900 font-medium">{s.name}</span>
-                  <span className="text-xs text-amber-600">
-                    · {s.activity?.task?.project?.code}
-                  </span>
+                  <span className="text-xs text-amber-600">· {s.activity?.task?.project?.code}</span>
                 </div>
                 <span className="text-xs text-amber-700 font-medium">
                   {s.dueDate ? new Date(s.dueDate).toLocaleDateString("en-IN") : "—"}
@@ -178,10 +134,8 @@ async function acceptTask(id, scheduledDate) {
         </div>
       )}
 
-      {/* Tabs */}
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
 
-        {/* Tab bar */}
         <div className="flex border-b border-gray-100">
           {TABS.map(t => {
             const count  = data.counts[t.key] || 0
@@ -199,19 +153,12 @@ async function acceptTask(id, scheduledDate) {
               red:   "bg-red-100 text-red-700",
             }
             return (
-              <button
-                key={t.key}
-                onClick={() => { setActiveTab(t.key); resetForm() }}
+              <button key={t.key} onClick={() => { setActiveTab(t.key); resetForm() }}
                 className={`flex items-center gap-2 px-5 py-3.5 text-sm font-medium border-b-2 transition-colors ${
-                  active
-                    ? `${colors[t.color]} bg-gray-50`
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                {t.label}
-                <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
-                  active ? badges[t.color] : "bg-gray-100 text-gray-500"
+                  active ? `${colors[t.color]} bg-gray-50` : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50"
                 }`}>
+                {t.label}
+                <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${active ? badges[t.color] : "bg-gray-100 text-gray-500"}`}>
                   {count}
                 </span>
               </button>
@@ -219,7 +166,6 @@ async function acceptTask(id, scheduledDate) {
           })}
         </div>
 
-        {/* Tab content */}
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -235,6 +181,7 @@ async function acceptTask(id, scheduledDate) {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
+
               {currentList.length === 0 && (
                 <tr>
                   <td colSpan={6} className="px-5 py-12 text-center">
@@ -255,16 +202,14 @@ async function acceptTask(id, scheduledDate) {
               )}
 
               {currentList.map(s => (
-                <>
-                  <tr key={s.id} className="hover:bg-gray-50 transition-colors">
+                <Fragment key={s.id}>
+                  <tr className="hover:bg-gray-50 transition-colors">
                     <td className="px-5 py-3.5">
                       <p className="font-medium text-gray-900">{s.name}</p>
-                      {s.remark && (
-                        <p className="text-xs text-gray-400 mt-0.5 truncate max-w-xs">{s.remark}</p>
-                      )}
+                      {s.remark && <p className="text-xs text-gray-400 mt-0.5 truncate max-w-xs">{s.remark}</p>}
                       {s.attachmentPath && (
                         <a
-                          href={s.attachmentPath}
+                          href={s.attachmentPath.replace("/image/upload/", "/raw/upload/")}
                           target="_blank"
                           rel="noreferrer"
                           className="flex items-center gap-1 text-xs text-indigo-600 hover:underline mt-0.5"
@@ -273,18 +218,11 @@ async function acceptTask(id, scheduledDate) {
                         </a>
                       )}
                     </td>
+                    <td className="px-4 py-3.5 text-gray-500">{s.activity?.task?.project?.code}</td>
                     <td className="px-4 py-3.5 text-gray-500">
-                      {s.activity?.task?.project?.code}
+                      {s.dueDate ? new Date(s.dueDate).toLocaleDateString("en-IN") : "—"}
                     </td>
-                    <td className="px-4 py-3.5 text-gray-500">
-                      {s.dueDate
-                        ? new Date(s.dueDate).toLocaleDateString("en-IN")
-                        : "—"
-                      }
-                    </td>
-                    <td className="px-4 py-3.5">
-                      <Badge status={s.status}>{s.status}</Badge>
-                    </td>
+                    <td className="px-4 py-3.5"><Badge status={s.status}>{s.status}</Badge></td>
 
                     {activeTab === "completed" && (
                       <td className="px-4 py-3.5">
@@ -296,38 +234,17 @@ async function acceptTask(id, scheduledDate) {
                     )}
 
                     <td className="px-4 py-3.5">
-                      {activeTab === "allotted" && (
-  <td className="px-4 py-3.5" colSpan={scheduling === s.id ? 6 : 1}>
-    {scheduling === s.id ? (
-      <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-xs text-gray-600 font-medium">Schedule completion:</span>
-        <input type="date" value={schedDate} onChange={e => setSchedDate(e.target.value)}
-          min={new Date().toISOString().split("T")[0]}
-          className="border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-        <button
-          onClick={() => acceptTask(s.id, schedDate ? new Date(schedDate).toISOString() : null)}
-          disabled={!schedDate}
-          className="flex items-center gap-1.5 text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700 disabled:bg-indigo-300 transition-colors">
-          Confirm Accept
-        </button>
-        <button onClick={() => setScheduling(null)} className="text-xs text-gray-400 hover:text-gray-600">Cancel</button>
-      </div>
-    ) : (
-      <button onClick={() => { setScheduling(s.id); setSchedDate("") }}
-        className="flex items-center gap-1.5 text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition-colors">
-        <PlayCircle className="w-3.5 h-3.5" /> Accept
-      </button>
-    )}
-  </td>
-)}
+                      {activeTab === "allotted" && scheduling !== s.id && (
+                        <button
+                          onClick={() => { setScheduling(s.id); setSchedDate("") }}
+                          className="flex items-center gap-1.5 text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition-colors">
+                          <PlayCircle className="w-3.5 h-3.5" /> Accept
+                        </button>
+                      )}
                       {activeTab === "onHand" && (
                         <button
-                          onClick={() => {
-                            setSubmitting(submitting === s.id ? null : s.id)
-                            setMsg({ text: "", type: "" })
-                          }}
-                          className="flex items-center gap-1.5 text-xs bg-emerald-600 text-white px-3 py-1.5 rounded-lg hover:bg-emerald-700 transition-colors"
-                        >
+                          onClick={() => { setSubmitting(submitting === s.id ? null : s.id); setMsg({ text: "", type: "" }) }}
+                          className="flex items-center gap-1.5 text-xs bg-emerald-600 text-white px-3 py-1.5 rounded-lg hover:bg-emerald-700 transition-colors">
                           {submitting === s.id
                             ? <><ChevronUp className="w-3.5 h-3.5" /> Cancel</>
                             : <><CheckCircle2 className="w-3.5 h-3.5" /> Submit</>
@@ -336,22 +253,41 @@ async function acceptTask(id, scheduledDate) {
                       )}
                       {activeTab === "delayed" && (
                         <button
-                          onClick={() => {
-                            setActiveTab("onHand")
-                            setSubmitting(s.id)
-                          }}
-                          className="flex items-center gap-1.5 text-xs bg-red-600 text-white px-3 py-1.5 rounded-lg hover:bg-red-700 transition-colors"
-                        >
+                          onClick={() => { setActiveTab("onHand"); setSubmitting(s.id) }}
+                          className="flex items-center gap-1.5 text-xs bg-red-600 text-white px-3 py-1.5 rounded-lg hover:bg-red-700 transition-colors">
                           <Upload className="w-3.5 h-3.5" /> Submit late
                         </button>
                       )}
-                      {activeTab === "completed" && (
-                        <span className="text-xs text-gray-300">—</span>
-                      )}
+                      {activeTab === "completed" && <span className="text-xs text-gray-300">—</span>}
                     </td>
                   </tr>
 
-                  {/* Inline submit form — only in onHand tab */}
+                  {/* Schedule date row — Allotted tab */}
+                  {activeTab === "allotted" && scheduling === s.id && (
+                    <tr key={`sched-${s.id}`}>
+                      <td colSpan={6} className="px-5 py-4 bg-indigo-50 border-b border-indigo-100">
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <span className="text-xs text-gray-700 font-medium">Schedule completion date:</span>
+                          <input type="date" value={schedDate}
+                            onChange={e => setSchedDate(e.target.value)}
+                            min={new Date().toISOString().split("T")[0]}
+                            className="border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white" />
+                          <button
+                            onClick={() => acceptTask(s.id, schedDate ? new Date(schedDate).toISOString() : null)}
+                            disabled={!schedDate}
+                            className="flex items-center gap-1.5 text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700 disabled:bg-indigo-300 transition-colors">
+                            Confirm Accept
+                          </button>
+                          <button onClick={() => setScheduling(null)}
+                            className="text-xs text-gray-400 hover:text-gray-600">
+                            Cancel
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+
+                  {/* Submit form row — OnHand tab */}
                   {submitting === s.id && activeTab === "onHand" && (
                     <tr key={`form-${s.id}`}>
                       <td colSpan={6} className="px-5 py-5 bg-indigo-50 border-b border-indigo-100">
@@ -366,7 +302,6 @@ async function acceptTask(id, scheduledDate) {
                             </button>
                           </div>
 
-                          {/* Message */}
                           {msg.text && (
                             <div className={`text-xs px-3 py-2.5 rounded-lg border ${
                               msg.type === "success" ? "bg-emerald-50 border-emerald-200 text-emerald-700"
@@ -377,29 +312,24 @@ async function acceptTask(id, scheduledDate) {
                             </div>
                           )}
 
-                          {/* Status */}
                           <div>
                             <p className="text-xs font-medium text-gray-700 mb-2">Submission status</p>
                             <div className="flex gap-2">
                               {["SUCCESSFUL", "PARTIAL", "REGRET"].map(st => (
-                                <button
-                                  key={st}
-                                  onClick={() => setForm(f => ({ ...f, status: st }))}
+                                <button key={st} onClick={() => setForm(f => ({ ...f, status: st }))}
                                   className={`text-xs px-3 py-1.5 rounded-lg border font-medium transition-colors ${
                                     form.status === st
                                       ? st === "SUCCESSFUL" ? "bg-emerald-600 text-white border-emerald-600"
                                       : st === "PARTIAL"    ? "bg-amber-500 text-white border-amber-500"
                                       :                       "bg-red-500 text-white border-red-500"
                                       : "border-gray-200 text-gray-600 hover:bg-gray-50 bg-white"
-                                  }`}
-                                >
+                                  }`}>
                                   {st}
                                 </button>
                               ))}
                             </div>
                           </div>
 
-                          {/* Remark */}
                           <div>
                             <div className="flex items-center justify-between mb-2">
                               <p className="text-xs font-medium text-gray-700">Remark *</p>
@@ -407,16 +337,12 @@ async function acceptTask(id, scheduledDate) {
                                 {form.remark.length} / 10 min
                               </span>
                             </div>
-                            <textarea
-                              rows={3}
-                              value={form.remark}
+                            <textarea rows={3} value={form.remark}
                               onChange={e => setForm(f => ({ ...f, remark: e.target.value }))}
                               placeholder="Describe what you completed in detail..."
-                              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none bg-white"
-                            />
+                              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none bg-white" />
                           </div>
 
-                          {/* File upload */}
                           <div>
                             <p className="text-xs font-medium text-gray-700 mb-2">
                               Attachment <span className="text-gray-400 font-normal">(optional)</span>
@@ -428,45 +354,31 @@ async function acceptTask(id, scheduledDate) {
                                   {form.file ? form.file.name : "Click to upload file"}
                                 </p>
                                 <p className="text-xs text-gray-400">
-                                  {form.file
-                                    ? `${(form.file.size / 1024).toFixed(1)} KB`
-                                    : "PDF, image, ZIP, Word, Excel — any type"
-                                  }
+                                  {form.file ? `${(form.file.size / 1024).toFixed(1)} KB` : "PDF, image, ZIP, Word, Excel — any type"}
                                 </p>
                               </div>
                               {form.file && (
-                                <button
-                                  type="button"
+                                <button type="button"
                                   onClick={e => { e.preventDefault(); setForm(f => ({ ...f, file: null })) }}
-                                  className="text-gray-400 hover:text-red-500 flex-shrink-0"
-                                >
+                                  className="text-gray-400 hover:text-red-500 flex-shrink-0">
                                   <X className="w-4 h-4" />
                                 </button>
                               )}
-                              <input
-                                type="file"
-                                className="hidden"
-                                onChange={e => setForm(f => ({ ...f, file: e.target.files?.[0] || null }))}
-                              />
+                              <input type="file" className="hidden"
+                                onChange={e => setForm(f => ({ ...f, file: e.target.files?.[0] || null }))} />
                             </label>
                           </div>
 
-                          {/* Actions */}
                           <div className="flex gap-2">
-                            <button
-                              onClick={() => submitTask(s.id)}
-                              disabled={uploading}
-                              className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white text-xs font-medium px-5 py-2.5 rounded-lg transition-colors"
-                            >
+                            <button onClick={() => submitTask(s.id)} disabled={uploading}
+                              className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white text-xs font-medium px-5 py-2.5 rounded-lg transition-colors">
                               {uploading
                                 ? <><span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" /> Uploading...</>
                                 : <><CheckCircle2 className="w-3.5 h-3.5" /> Confirm Submit</>
                               }
                             </button>
-                            <button
-                              onClick={resetForm}
-                              className="text-xs border border-gray-200 bg-white px-4 py-2.5 rounded-lg hover:bg-gray-50 transition-colors text-gray-600"
-                            >
+                            <button onClick={resetForm}
+                              className="text-xs border border-gray-200 bg-white px-4 py-2.5 rounded-lg hover:bg-gray-50 transition-colors text-gray-600">
                               Cancel
                             </button>
                           </div>
@@ -475,7 +387,7 @@ async function acceptTask(id, scheduledDate) {
                       </td>
                     </tr>
                   )}
-                </>
+                </Fragment>
               ))}
             </tbody>
           </table>
