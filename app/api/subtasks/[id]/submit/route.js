@@ -13,7 +13,6 @@ async function uploadToCloudinary(file) {
   const buffer = Buffer.from(bytes)
 
   const isImage = file.type.startsWith("image/")
-  const isPdf = file.type === "application/pdf"
 
   const ext = file.name.split(".").pop().toLowerCase()
   const baseName = file.name
@@ -26,8 +25,8 @@ async function uploadToCloudinary(file) {
     cloudinary.uploader.upload_stream(
       {
         folder: "taskflow",
-        // Images + PDFs can open in browser
-        resource_type: isImage || isPdf ? "image" : "raw",
+        // Images open in browser, everything else (PDF, ZIP, etc) downloads
+        resource_type: isImage ? "image" : "raw",
         public_id: publicId,
       },
       (error, result) => {
