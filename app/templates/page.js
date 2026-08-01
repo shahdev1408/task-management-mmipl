@@ -1,7 +1,7 @@
 "use client"
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Plus, ChevronDown, ChevronRight, RefreshCw, Trash2 } from "lucide-react"
+import { Plus, ChevronDown, ChevronRight, RefreshCw, Trash2, Pencil } from "lucide-react"
 
 export default function TemplatesPage() {
   const [templates, setTemplates] = useState([])
@@ -74,14 +74,18 @@ export default function TemplatesPage() {
                 </div>
               </button>
               <div className="flex items-center gap-3">
-                <span className="text-xs text-gray-400">{t.activities.length} activities</span>
-                <button
-                  onClick={() => deleteTemplate(t.id)}
-                  disabled={deleting === t.id}
-                  className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
+  <span className="text-xs text-gray-400">{t.activities.length} activities</span>
+  <Link href={`/templates/${t.id}/edit`}
+    className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">
+    <Pencil className="w-3.5 h-3.5" />
+  </Link>
+  <button
+    onClick={() => deleteTemplate(t.id)}
+    disabled={deleting === t.id}
+    className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+    <Trash2 className="w-3.5 h-3.5" />
+  </button>
+</div>
             </div>
 
             {open[t.id] && (
