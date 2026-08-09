@@ -82,17 +82,18 @@ export async function PATCH(req, { params }) {
     })
 
     return NextResponse.json(result)
-  catch (err: any) {
-  console.error(err);
+  } catch (err) {
+    console.error(err)
 
-  return NextResponse.json(
-    {
-      error: err.message,
-      code: err.code,
-      meta: err.meta,
-    },
-    { status: 500 }
-  );
+    return NextResponse.json(
+      {
+        error: err.message,
+        code: err.code,
+        meta: err.meta,
+      },
+      { status: 500 }
+    )
+  }
 }
 
 export async function DELETE(req, { params }) {
@@ -117,7 +118,15 @@ export async function DELETE(req, { params }) {
 
     return NextResponse.json({ success: true })
   } catch (err) {
-    console.error("Template delete error:", err)
-    return NextResponse.json({ error: "Failed to delete template" }, { status: 500 })
+    console.error(err)
+
+    return NextResponse.json(
+      {
+        error: err.message,
+        code: err.code,
+        meta: err.meta,
+      },
+      { status: 500 }
+    )
   }
 }
