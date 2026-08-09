@@ -82,10 +82,17 @@ export async function PATCH(req, { params }) {
     })
 
     return NextResponse.json(result)
-  } catch (err) {
-    console.error("Template update error:", err)
-    return NextResponse.json({ error: "Failed to update template" }, { status: 500 })
-  }
+  catch (err: any) {
+  console.error(err);
+
+  return NextResponse.json(
+    {
+      error: err.message,
+      code: err.code,
+      meta: err.meta,
+    },
+    { status: 500 }
+  );
 }
 
 export async function DELETE(req, { params }) {
