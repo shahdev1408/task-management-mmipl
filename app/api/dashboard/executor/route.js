@@ -5,7 +5,10 @@ import { NextResponse } from "next/server"
 
 export async function GET() {
   const session = await getServerSession(authOptions)
-  if (!session || session.user.role !== "EXECUTOR")
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
+  const role = session.user.role
+  if (!["EXECUTOR", "SUPERVISOR", "MANAGER"].includes(role))
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const executorId = parseInt(session.user.id)
@@ -13,8 +16,10 @@ export async function GET() {
   const in2days    = new Date()
   in2days.setDate(today.getDate() + 2)
 
+  const where = role === "EXECUTOR" ? { executorId } : {}
+
   const subTasks = await prisma.subTask.findMany({
-    where: { executorId },
+    where,
     include: {
       activity: {
         include: {
@@ -29,11 +34,11 @@ export async function GET() {
     orderBy: { dueDate: "asc" }
   })
 
-  const allotted   = subTasks.filter(s => s.status === "ALLOTTED")
-  const onHand     = subTasks.filter(s => s.status === "ONGOING")
-  const completed  = subTasks.filter(s => s.status === "COMPLETED")
-  const delayed    = subTasks.filter(s => s.status === "DELAYED")
-  const dueSoon    = subTasks.filter(s =>
+  const allotted  = subTasks.filter(s => s.status === "ALLOTTED")
+  const onHand    = subTasks.filter(s => s.status === "ONGOING")
+  const completed = subTasks.filter(s => s.status === "COMPLETED")
+  const delayed   = subTasks.filter(s => s.status === "DELAYED")
+  const dueSoon   = subTasks.filter(s =>
     s.dueDate &&
     new Date(s.dueDate) <= in2days &&
     new Date(s.dueDate) >= today &&

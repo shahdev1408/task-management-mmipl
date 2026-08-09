@@ -4,27 +4,30 @@ import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
 import {
   LayoutDashboard, ClipboardList, FolderKanban,
-  ChevronRight, Clock, Settings, FolderOpen
+  ChevronRight, Clock, Settings, FolderOpen, Users, CheckSquare
 } from "lucide-react"
 
 const navByRole = {
   SUPERVISOR: [
-    { href: "/dashboard/supervisor", label: "Dashboard",   icon: LayoutDashboard },
-    { href: "/templates",            label: "Templates",   icon: ClipboardList   },
-    { href: "/projects",             label: "Projects",    icon: FolderOpen      },
-    { href: "/delegation/new",       label: "Delegate",    icon: FolderKanban    },
-    { href: "/history",              label: "Audit Trail", icon: Clock           },
-    { href: "/settings",             label: "Settings",    icon: Settings        },
+    { href: "/dashboard/supervisor", label: "Dashboard",      icon: LayoutDashboard },
+    { href: "/dashboard/manager",    label: "Manager view",   icon: Users           },
+    { href: "/dashboard/executor",   label: "Executor view",  icon: CheckSquare     },
+    { href: "/templates",            label: "Templates",      icon: ClipboardList   },
+    { href: "/projects",             label: "Projects",       icon: FolderOpen      },
+    { href: "/delegation/new",       label: "Delegate",       icon: FolderKanban    },
+    { href: "/history",              label: "Audit Trail",    icon: Clock           },
+    { href: "/settings",             label: "Settings",       icon: Settings        },
   ],
   MANAGER: [
-    { href: "/dashboard/manager",    label: "Dashboard",   icon: LayoutDashboard },
-    { href: "/templates",            label: "Templates",   icon: ClipboardList   },
-    { href: "/delegation/new",       label: "Delegate",    icon: FolderKanban    },
-    { href: "/settings",             label: "Settings",    icon: Settings        },
+    { href: "/dashboard/manager",    label: "Dashboard",      icon: LayoutDashboard },
+    { href: "/dashboard/executor",   label: "Executor view",  icon: CheckSquare     },
+    { href: "/templates",            label: "Templates",      icon: ClipboardList   },
+    { href: "/delegation/new",       label: "Delegate",       icon: FolderKanban    },
+    { href: "/settings",             label: "Settings",       icon: Settings        },
   ],
   EXECUTOR: [
-    { href: "/dashboard/executor",   label: "My Tasks",    icon: LayoutDashboard },
-    { href: "/settings",             label: "Settings",    icon: Settings        },
+    { href: "/dashboard/executor",   label: "My Tasks",       icon: LayoutDashboard },
+    { href: "/settings",             label: "Settings",       icon: Settings        },
   ],
 }
 
@@ -47,7 +50,7 @@ export default function Sidebar() {
 
       <nav className="flex-1 px-3 py-4 space-y-1">
         {links.map(({ href, label, icon: Icon }) => {
-          const active = pathname === href || (pathname.startsWith(href + "/") && href !== "/")
+          const active = pathname === href || (href !== "/" && pathname.startsWith(href + "/"))
           return (
             <Link key={href} href={href}
               className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${

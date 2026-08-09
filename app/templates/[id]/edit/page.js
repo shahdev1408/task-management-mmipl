@@ -7,15 +7,16 @@ const newSubTask = () => ({ name: "", description: "", defaultDays: 1, precedenc
 const newActivity = () => ({ name: "", description: "", estimatedDays: 1, prePerson: "", postPerson: "", subTasks: [newSubTask()] })
 
 export default function EditTemplatePage() {
-  const router   = useRouter()
-  const { id }   = useParams()
-  const [name, setName]             = useState("")
-  const [description, setDesc]      = useState("")
-  const [activities, setActivities] = useState([newActivity()])
-  const [loading, setLoading]       = useState(true)
-  const [saving, setSaving]         = useState(false)
-  const [error, setError]           = useState("")
+  const router = useRouter()
+  const { id } = useParams()
+  const [name, setName]               = useState("")
+  const [description, setDesc]        = useState("")
+  const [activities, setActivities]   = useState([newActivity()])
+  const [loading, setLoading]         = useState(true)
+  const [saving, setSaving]           = useState(false)
+  const [error, setError]             = useState("")
   const [showConfirm, setShowConfirm] = useState(null)
+  const [copyName, setCopyName]       = useState("")
 
   useEffect(() => {
     async function load() {
@@ -56,13 +57,8 @@ export default function EditTemplatePage() {
     }))
   }
 
-  function addActivity() {
-    setActivities(prev => [...prev, newActivity()])
-  }
-
-  function removeActivity(ai) {
-    setActivities(prev => prev.filter((_, i) => i !== ai))
-  }
+  function addActivity() { setActivities(prev => [...prev, newActivity()]) }
+  function removeActivity(ai) { setActivities(prev => prev.filter((_, i) => i !== ai)) }
 
   function addSubTask(ai) {
     setActivities(prev => prev.map((a, i) => {
@@ -91,31 +87,32 @@ export default function EditTemplatePage() {
       headers: { "Content-Type": "application/json" },
       body:    JSON.stringify({ name, description, activities }),
     })
+    const json = await res.json()
     setSaving(false)
-    if (res.ok) router.push("/templates")
-    else {
-      const json = await res.json()
+    if (res.ok) {
+      router.push("/templates")
+    } else {
+      setShowConfirm(null)
       setError(json.error || "Failed to update")
     }
   }
 
   async function handleSaveAsNew() {
     setError("")
-    if (!name.trim()) return setError("Template name is required")
+    const finalName = copyName.trim() || `${name} (copy)`
+    if (!finalName) return setError("Template name is required")
     setSaving(true)
     const res = await fetch("/api/templates", {
       method:  "POST",
       headers: { "Content-Type": "application/json" },
-      body:    JSON.stringify({
-        name:        `${name} (copy)`,
-        description,
-        activities,
-      }),
+      body:    JSON.stringify({ name: finalName, description, activities }),
     })
+    const json = await res.json()
     setSaving(false)
-    if (res.ok) router.push("/templates")
-    else {
-      const json = await res.json()
+    if (res.ok) {
+      router.push("/templates")
+    } else {
+      setShowConfirm(null)
       setError(json.error || "Failed to create")
     }
   }
@@ -167,12 +164,11 @@ export default function EditTemplatePage() {
               <span className="text-sm font-semibold text-gray-900">Activity {ai + 1}</span>
             </div>
             {activities.length > 1 && (
-              <button type="button" onClick={() => removeActivity(ai)} className="text-red-400 hover:text-red-600 transition-colors">
+              <button type="button" onClick={() => removeActivity(ai)} className="text-red-400 hover:text-red-600">
                 <Trash2 className="w-4 h-4" />
               </button>
             )}
           </div>
-
           <div className="p-5 space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -201,7 +197,6 @@ export default function EditTemplatePage() {
                   placeholder="Person after this activity" />
               </div>
             </div>
-
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="text-xs font-medium text-gray-700">Sub-tasks</label>
@@ -262,24 +257,19 @@ export default function EditTemplatePage() {
         <Plus className="w-4 h-4" /> Add Activity
       </button>
 
-      {/* Two save options */}
       <div className="bg-white rounded-xl border border-gray-200 p-5">
         <p className="text-sm font-semibold text-gray-900 mb-1">Save options</p>
         <p className="text-xs text-gray-500 mb-4">Choose how you want to save your changes</p>
         <div className="grid grid-cols-2 gap-3">
-          <button
-            onClick={() => setShowConfirm("update")}
-            disabled={saving}
+          <button onClick={() => setShowConfirm("update")} disabled={saving}
             className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white text-sm font-medium px-4 py-3 rounded-lg transition-colors">
-            <Save className="w-4 h-4" />
-            Update this template
+            <Save className="w-4 h-4" /> Update this template
           </button>
           <button
-            onClick={() => setShowConfirm("new")}
+            onClick={() => { setCopyName(`${name} (copy)`); setShowConfirm("new") }}
             disabled={saving}
             className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white text-sm font-medium px-4 py-3 rounded-lg transition-colors">
-            <Copy className="w-4 h-4" />
-            Save as new template
+            <Copy className="w-4 h-4" /> Save as new template
           </button>
         </div>
         <div className="grid grid-cols-2 gap-3 mt-2">
@@ -288,7 +278,6 @@ export default function EditTemplatePage() {
         </div>
       </div>
 
-      {/* Confirm modal */}
       {showConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl border border-gray-200 shadow-lg p-6 w-full max-w-sm mx-4">
@@ -296,35 +285,39 @@ export default function EditTemplatePage() {
               <>
                 <h3 className="text-sm font-semibold text-gray-900 mb-2">Update this template?</h3>
                 <p className="text-xs text-gray-500 mb-4">
-                  This will overwrite the existing template. Any delegated tasks using this template will not be affected — only future delegations will use the new version.
+                  This will overwrite the existing template. Delegated tasks already created will not be affected.
                 </p>
                 <div className="flex gap-2">
                   <button onClick={handleUpdate} disabled={saving}
-                    className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white text-sm font-medium py-2 rounded-lg transition-colors">
+                    className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white text-sm font-medium py-2.5 rounded-lg transition-colors">
                     {saving ? "Saving..." : "Yes, update"}
                   </button>
                   <button onClick={() => setShowConfirm(null)}
-                    className="flex-1 border border-gray-200 text-gray-600 text-sm py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                    className="flex-1 border border-gray-200 text-gray-600 text-sm py-2.5 rounded-lg hover:bg-gray-50 transition-colors">
                     Cancel
                   </button>
                 </div>
               </>
             ) : (
               <>
-                <h3 className="text-sm font-semibold text-gray-900 mb-2">Save as new template?</h3>
+                <h3 className="text-sm font-semibold text-gray-900 mb-2">Save as new template</h3>
                 <p className="text-xs text-gray-500 mb-3">
-                  Original template stays unchanged. A new copy will be created with your changes named:
+                  Original template stays unchanged. Enter a name for the new copy:
                 </p>
-                <div className="bg-indigo-50 border border-indigo-200 rounded-lg px-3 py-2 mb-4">
-                  <p className="text-sm font-medium text-indigo-800">"{name} (copy)"</p>
-                </div>
+                <input
+                  value={copyName}
+                  onChange={e => setCopyName(e.target.value)}
+                  className="w-full border border-indigo-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4"
+                  placeholder="New template name"
+                  autoFocus
+                />
                 <div className="flex gap-2">
-                  <button onClick={handleSaveAsNew} disabled={saving}
-                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white text-sm font-medium py-2 rounded-lg transition-colors">
+                  <button onClick={handleSaveAsNew} disabled={saving || !copyName.trim()}
+                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white text-sm font-medium py-2.5 rounded-lg transition-colors">
                     {saving ? "Creating..." : "Yes, create copy"}
                   </button>
                   <button onClick={() => setShowConfirm(null)}
-                    className="flex-1 border border-gray-200 text-gray-600 text-sm py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                    className="flex-1 border border-gray-200 text-gray-600 text-sm py-2.5 rounded-lg hover:bg-gray-50 transition-colors">
                     Cancel
                   </button>
                 </div>
