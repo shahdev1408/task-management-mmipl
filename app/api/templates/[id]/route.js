@@ -50,25 +50,24 @@ export async function PATCH(req, { params }) {
           name,
           description: description || null,
           activities: {
-            create: activities.map((a, ai) => ({
-              name:          a.name,
-              description:   a.description   || null,
-              estimatedDays: parseInt(a.estimatedDays) || 1,
-              sortOrder:     ai,
-              prePerson:     a.prePerson     || null,
-              postPerson:    a.postPerson    || null,
-              subTasks: {
-                create: (a.subTasks || []).map((s, si) => ({
-                  name:               s.name,
-                  description:        s.description        || null,
-                  defaultDays:        parseInt(s.defaultDays) || 1,
-                  precedenceType:     s.precedenceType     || "NONE",
-                  attachmentRequired: s.attachmentRequired || null,
-                  sortOrder:          si,
-                }))
-              }
-            }))
-          }
+  create: activities.map((a, ai) => ({
+    name: a.name,
+    description: a.description || null,
+    estimatedDays: parseInt(a.estimatedDays) || 1,
+    sortOrder: ai,
+
+    subTasks: {
+      create: (a.subTasks || []).map((s, si) => ({
+        name: s.name,
+        description: s.description || null,
+        defaultDays: parseInt(s.defaultDays) || 1,
+        precedenceType: s.precedenceType || "NONE",
+        attachmentRequired: s.attachmentRequired || null,
+        sortOrder: si,
+      })),
+    },
+  })),
+}
         },
         include: {
           activities: {
