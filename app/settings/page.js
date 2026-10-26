@@ -47,6 +47,7 @@ export default function SettingsPage() {
   }, [tab])
 
   async function saveProfile() {
+    if (!session?.user?.id) return setProfileMsg({ text: "Please log in first", type: "error" })
     setProfileMsg({ text: "", type: "" })
     setSavingProfile(true)
     const res = await fetch(`/api/users/${session.user.id}`, {
@@ -62,6 +63,7 @@ export default function SettingsPage() {
   }
 
   async function savePassword() {
+    if (!session?.user?.id) return setPwMsg({ text: "Please log in first", type: "error" })
     setPwMsg({ text: "", type: "" })
     if (pwForm.password !== pwForm.confirm) return setPwMsg({ text: "Passwords do not match", type: "error" })
     if (pwForm.password.length < 6) return setPwMsg({ text: "Min 6 characters", type: "error" })

@@ -74,7 +74,7 @@ export default function TemplatesPage() {
                 </div>
               </button>
               <div className="flex items-center gap-3">
-  <span className="text-xs text-gray-400">{t.activities.length} activities</span>
+  <span className="text-xs text-gray-400">{(t.activities || []).length} activities</span>
   <Link href={`/templates/${t.id}/edit`}
     className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">
     <Pencil className="w-3.5 h-3.5" />
@@ -90,7 +90,7 @@ export default function TemplatesPage() {
 
             {open[t.id] && (
               <div className="px-5 pb-4 border-t border-gray-100">
-                {t.activities.map((a, ai) => (
+                {(t.activities || []).map((a, ai) => (
                   <div key={a.id} className="mt-3">
                     <div className="flex items-center gap-2 mb-2">
                       <span className="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 text-xs flex items-center justify-center font-semibold">{ai + 1}</span>
@@ -100,7 +100,7 @@ export default function TemplatesPage() {
                       {a.postPerson && <span className="text-xs text-gray-400">· Post: {a.postPerson}</span>}
                     </div>
                     <div className="ml-7 space-y-1">
-                      {a.subTasks.map((s, si) => (
+                      {(a.subTasks || []).map((s, si) => (
                         <div key={s.id} className="flex items-center gap-2 text-xs text-gray-500">
                           <span className="w-4 h-4 rounded bg-gray-100 text-gray-600 flex items-center justify-center">{si + 1}</span>
                           <span>{s.name}</span>

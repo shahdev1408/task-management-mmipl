@@ -15,19 +15,37 @@ export default function SupervisorDashboard() {
 
   async function load() {
     setLoading(true)
-    const res  = await fetch("/api/dashboard/supervisor")
-    const json = await res.json()
-    setData(json)
-    setLoading(false)
+    try {
+      const res = await fetch("/api/dashboard/supervisor")
+      if (!res.ok) {
+        if (res.status === 401) {
+          window.location.href = "/login"
+          return
+        }
+        throw new Error("Failed to load")
+      }
+      const json = await res.json()
+      setData(json && !json.error ? json : { completed: 0, ongoing: 0, delayed: 0, projects: [], managerStats: [], executorStats: [] })
+    } catch (e) {
+      console.error(e)
+      setData({ completed: 0, ongoing: 0, delayed: 0, projects: [], managerStats: [], executorStats: [] })
+    } finally {
+      setLoading(false)
+    }
   }
 
   async function runDelayedCheck() {
-    const res  = await fetch("/api/cron/mark-delayed", {
-      headers: { authorization: "Bearer cron-secret-2024-xyz" }
-    })
-    const json = await res.json()
-    alert(`${json.message} — ${json.updated ?? 0} tasks updated`)
-    load()
+    try {
+      const res = await fetch("/api/cron/mark-delayed", {
+        headers: { authorization: "Bearer cron-secret-2024-xyz" }
+      })
+      const json = await res.json()
+      alert(`${json.message || "Done"} — ${json.updated ?? 0} tasks updated`)
+      load()
+    } catch (e) {
+      console.error(e)
+      alert("Failed to run overdue check")
+    }
   }
 
   useEffect(() => { load() }, [])
@@ -39,8 +57,8 @@ export default function SupervisorDashboard() {
   )
 
   const userStats = [
-    ...data.managerStats,
-    ...data.executorStats,
+    ...(data?.managerStats || []),
+    ...(data?.executorStats || []),
   ].filter(u => drillFilter === "ALL" || u.role === drillFilter)
 
   return (
@@ -71,9 +89,9 @@ export default function SupervisorDashboard() {
 
       {/* Stat cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatCard label="Completed" value={data.completed} icon={CheckCircle2}  color="green" subtext="All projects" />
-        <StatCard label="On-going"  value={data.ongoing}   icon={Clock}         color="blue"  subtext="All projects" />
-        <StatCard label="Delayed"   value={data.delayed}   icon={AlertTriangle} color="red"   subtext="Needs attention" />
+        <StatCard label="Completed" value={data?.completed || 0} icon={CheckCircle2}  color="green" subtext="All projects" />
+        <StatCard label="On-going"  value={data?.ongoing || 0}   icon={Clock}         color="blue"  subtext="All projects" />
+        <StatCard label="Delayed"   value={data?.delayed || 0}   icon={AlertTriangle} color="red"   subtext="Needs attention" />
       </div>
 
       {/* View toggle — Project wise / User wise */}

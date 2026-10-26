@@ -45,10 +45,23 @@ export default function ExecutorDashboard() {
 
   async function load() {
     setLoading(true)
-    const res  = await fetch("/api/dashboard/executor")
-    const json = await res.json()
-    setData(json)
-    setLoading(false)
+    try {
+      const res = await fetch("/api/dashboard/executor")
+      if (!res.ok) {
+        if (res.status === 401) {
+          window.location.href = "/login"
+          return
+        }
+        throw new Error("Failed to load")
+      }
+      const json = await res.json()
+      setData(json)
+    } catch (e) {
+      console.error(e)
+      setData({ counts: { allotted: 0, onHand: 0, completed: 0, delayed: 0 }, allotted: [], onHand: [], completed: [], delayed: [], dueSoon: [] })
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => { load() }, [])
@@ -104,7 +117,8 @@ export default function ExecutorDashboard() {
     </div>
   )
 
-  const currentList = data[activeTab] || []
+  const counts = data?.counts || { allotted: 0, onHand: 0, completed: 0, delayed: 0 }
+  const currentList = (data && data[activeTab]) || []
 
   return (
     <div className="space-y-6">
@@ -120,10 +134,10 @@ export default function ExecutorDashboard() {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <StatCard label="Allotted"  value={data.counts.allotted}  icon={Package}       color="gray"  subtext="Pending acceptance"   />
-        <StatCard label="On-Hand"   value={data.counts.onHand}    icon={PlayCircle}    color="blue"  subtext="Accepted, in progress" />
-        <StatCard label="Completed" value={data.counts.completed} icon={CheckCircle2}  color="green" subtext="Submitted"             />
-        <StatCard label="Delayed"   value={data.counts.delayed}   icon={AlertTriangle} color="red"   subtext="Past due date"         />
+        <StatCard label="Allotted"  value={counts.allotted || 0}  icon={Package}       color="gray"  subtext="Pending acceptance"   />
+        <StatCard label="On-Hand"   value={counts.onHand || 0}    icon={PlayCircle}    color="blue"  subtext="Accepted, in progress" />
+        <StatCard label="Completed" value={counts.completed || 0} icon={CheckCircle2}  color="green" subtext="Submitted"             />
+        <StatCard label="Delayed"   value={counts.delayed || 0}   icon={AlertTriangle} color="red"   subtext="Past due date"         />
       </div>
 
       {data.dueSoon?.length > 0 && (

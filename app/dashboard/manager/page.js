@@ -20,13 +20,26 @@ export default function ManagerDashboard() {
 
   async function load() {
     setLoading(true)
-    const [dashRes, execRes] = await Promise.all([
-      fetch("/api/dashboard/manager"),
-      fetch("/api/users?role=EXECUTOR"),
-    ])
-    setData(await dashRes.json())
-    setExecutors(await execRes.json())
-    setLoading(false)
+    try {
+      const [dashRes, execRes] = await Promise.all([
+        fetch("/api/dashboard/manager"),
+        fetch("/api/users?role=EXECUTOR"),
+      ])
+      if (dashRes.status === 401 || execRes.status === 401) {
+        window.location.href = "/login"
+        return
+      }
+      const dashJson = await dashRes.json()
+      const execJson = await execRes.json()
+      setData(dashJson && !dashJson.error ? dashJson : { completed: 0, ongoing: 0, delayed: 0, activities: [], executorStats: [] })
+      setExecutors(Array.isArray(execJson) ? execJson : [])
+    } catch (e) {
+      console.error(e)
+      setData({ completed: 0, ongoing: 0, delayed: 0, activities: [], executorStats: [] })
+      setExecutors([])
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => { load() }, [])
@@ -84,9 +97,9 @@ export default function ManagerDashboard() {
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatCard label="Completed" value={data.completed} icon={CheckCircle2}  color="green" />
-        <StatCard label="On-going"  value={data.ongoing}   icon={Clock}         color="blue"  />
-        <StatCard label="Delayed"   value={data.delayed}   icon={AlertTriangle} color="red"   />
+        <StatCard label="Completed" value={data?.completed || 0} icon={CheckCircle2}  color="green" />
+        <StatCard label="On-going"  value={data?.ongoing || 0}   icon={Clock}         color="blue"  />
+        <StatCard label="Delayed"   value={data?.delayed || 0}   icon={AlertTriangle} color="red"   />
       </div>
 
       {/* View toggle */}

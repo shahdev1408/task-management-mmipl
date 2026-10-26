@@ -1,9 +1,16 @@
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
 
 export async function GET(req) {
+  const session = await getServerSession(authOptions)
+  const isSupervisor = session && ["SUPERVISOR", "MANAGER"].includes(session.user?.role)
   const authHeader = req.headers.get("authorization")
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`)
+  const cronSecret = process.env.CRON_SECRET || "cron-secret-2024-xyz"
+  const isCronAuth = authHeader === `Bearer ${cronSecret}`
+
+  if (!isSupervisor && !isCronAuth)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const now = new Date()

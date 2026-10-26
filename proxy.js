@@ -1,4 +1,3 @@
-// middleware.js  (root of project)
 import { withAuth } from 'next-auth/middleware'
 import { NextResponse } from 'next/server'
 
@@ -7,14 +6,20 @@ export default withAuth(
     const { pathname } = req.nextUrl
     const role = req.nextauth.token?.role
 
-    if (pathname.startsWith('/dashboard/supervisor') && role !== 'SUPERVISOR')
-      return NextResponse.redirect(new URL(`/dashboard/${role?.toLowerCase()}`, req.url))
+    if (pathname.startsWith('/dashboard/supervisor') && role !== 'SUPERVISOR') {
+      const fallback = role ? role.toLowerCase() : 'login'
+      return NextResponse.redirect(new URL(fallback === 'login' ? '/login' : `/dashboard/${fallback}`, req.url))
+    }
 
-    if (pathname.startsWith('/dashboard/manager') && role !== 'MANAGER')
-      return NextResponse.redirect(new URL(`/dashboard/${role?.toLowerCase()}`, req.url))
+    if (pathname.startsWith('/dashboard/manager') && role !== 'MANAGER') {
+      const fallback = role ? role.toLowerCase() : 'login'
+      return NextResponse.redirect(new URL(fallback === 'login' ? '/login' : `/dashboard/${fallback}`, req.url))
+    }
 
-    if (pathname.startsWith('/dashboard/executor') && role !== 'EXECUTOR')
-      return NextResponse.redirect(new URL(`/dashboard/${role?.toLowerCase()}`, req.url))
+    if (pathname.startsWith('/dashboard/executor') && role !== 'EXECUTOR') {
+      const fallback = role ? role.toLowerCase() : 'login'
+      return NextResponse.redirect(new URL(fallback === 'login' ? '/login' : `/dashboard/${fallback}`, req.url))
+    }
 
     return NextResponse.next()
   },
@@ -22,6 +27,7 @@ export default withAuth(
     callbacks: {
       authorized: ({ token }) => !!token,
     },
+    secret: process.env.NEXTAUTH_SECRET || "tms-secret-2024-abc123xyz",
   }
 )
 

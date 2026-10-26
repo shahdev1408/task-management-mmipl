@@ -46,12 +46,12 @@ export default function DelegationPage() {
     if (!templateId) return
     const t = templates.find(t => t.id === parseInt(templateId))
     if (!t) return
-    setActivities(t.activities.map(a => ({
+    setActivities((t.activities || []).map(a => ({
       id:           a.id,
       name:         a.name,
       estimatedDays: a.estimatedDays,
       managerId:    "",
-      subTasks:     a.subTasks.map(s => ({
+      subTasks:     (a.subTasks || []).map(s => ({
         id:            s.id,
         name:          s.name,
         days:          s.defaultDays,
@@ -178,7 +178,7 @@ export default function DelegationPage() {
               <div>
                 <p className="text-sm font-medium text-gray-900">{t.name}</p>
                 {t.description && <p className="text-xs text-gray-500">{t.description}</p>}
-                <p className="text-xs text-gray-400 mt-1">{t.activities.length} activities</p>
+                <p className="text-xs text-gray-400 mt-1">{(t.activities || []).length} activities</p>
               </div>
             </label>
           ))}

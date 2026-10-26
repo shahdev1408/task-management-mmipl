@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState } from "react"
+import { useEffect, useState, Fragment } from "react"
 import { Plus, Pencil, Trash2, X, Check, RefreshCw } from "lucide-react"
 
 function formatDate(dateStr) {
@@ -159,7 +159,7 @@ export default function ProjectsPage() {
               </tr>
             )}
             {projects.map(p => (
-              <tbody key={p.id}>
+              <Fragment key={p.id}>
                 <tr className="hover:bg-gray-50 transition-colors border-b border-gray-50">
                   <td className="px-5 py-3.5">
                     <span className="font-semibold text-gray-900">{p.code}</span>
@@ -190,7 +190,7 @@ export default function ProjectsPage() {
                     </td>
                   </tr>
                 )}
-              </tbody>
+              </Fragment>
             ))}
           </tbody>
         </table>
