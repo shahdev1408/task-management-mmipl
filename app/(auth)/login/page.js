@@ -16,16 +16,16 @@ export default function LoginPage() {
     setError("")
     setLoading(true)
     const res = await signIn("credentials", {
-      email:    form.email,
-      password: form.password,
+      email:    form.email.trim(),
+      password: form.password.trim(),
       redirect: false,
     })
-    setLoading(false)
     if (res?.error) {
+      setLoading(false)
       setError("Invalid email or password")
     } else {
-      router.push("/")
-      router.refresh()
+      // Direct window location avoids Next.js router cache stall
+      window.location.href = "/"
     }
   }
 
