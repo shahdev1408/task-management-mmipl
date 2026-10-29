@@ -32,8 +32,17 @@ function MsgBox({ msg }) {
   return <div className={`text-xs px-3 py-2.5 rounded-lg border ${cls}`}>{msg.text}</div>
 }
 
+const defaultExecutorData = {
+  counts: { allotted: 0, onHand: 0, completed: 0, delayed: 0 },
+  allotted: [],
+  onHand: [],
+  completed: [],
+  delayed: [],
+  dueSoon: [],
+}
+
 export default function ExecutorDashboard() {
-  const [data, setData]             = useState(null)
+  const [data, setData]             = useState(defaultExecutorData)
   const [loading, setLoading]       = useState(true)
   const [activeTab, setActiveTab]   = useState("allotted")
   const [submitting, setSubmitting] = useState(null)
@@ -110,12 +119,6 @@ export default function ExecutorDashboard() {
     setForm({ status: "SUCCESSFUL", remark: "", file: null })
     setMsg({ text: "", type: "" })
   }
-
-  if (loading) return (
-    <div className="flex items-center justify-center h-64">
-      <RefreshCw className="w-5 h-5 text-gray-400 animate-spin" />
-    </div>
-  )
 
   const counts = data?.counts || { allotted: 0, onHand: 0, completed: 0, delayed: 0 }
   const currentList = (data && data[activeTab]) || []

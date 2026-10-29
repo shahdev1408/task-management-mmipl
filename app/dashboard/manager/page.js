@@ -8,8 +8,18 @@ import {
 import StatCard from "@/components/dashboard/StatCard"
 import Badge from "@/components/ui/Badge"
 
+const defaultManagerData = {
+  completed: 0,
+  ongoing: 0,
+  delayed: 0,
+  activityStats: [],
+  allSubTasks: [],
+  projectStats: [],
+  executorStats: [],
+}
+
 export default function ManagerDashboard() {
-  const [data, setData]               = useState(null)
+  const [data, setData]               = useState(defaultManagerData)
   const [loading, setLoading]         = useState(true)
   const [executors, setExecutors]     = useState([])
   const [reallocModal, setReallocModal] = useState(null)
@@ -17,6 +27,11 @@ export default function ManagerDashboard() {
   const [actionMsg, setActionMsg]     = useState("")
   const [expandedAct, setExpandedAct] = useState({})
   const [view, setView]               = useState("activity")
+
+  const activityStats = data?.activityStats || []
+  const allSubTasks   = data?.allSubTasks || []
+  const projectStats  = data?.projectStats || []
+  const executorStats = data?.executorStats || []
 
   async function load() {
     setLoading(true)
@@ -130,7 +145,7 @@ export default function ManagerDashboard() {
                 </tr>
               </thead>
             <tbody className="divide-y divide-gray-50">
-              {data.activityStats.map(a => (
+              {activityStats.map(a => (
                 <>
                   <tr key={a.id} className="hover:bg-gray-50">
                     <td className="px-5 py-3.5 font-medium text-gray-900">{a.name}</td>
@@ -145,7 +160,7 @@ export default function ManagerDashboard() {
                       </button>
                     </td>
                   </tr>
-                  {expandedAct[a.id] && data.allSubTasks
+                  {expandedAct[a.id] && allSubTasks
                     .filter(s => s.activityName === a.name)
                     .map(s => (
                       <tr key={`sub-${s.id}`} className="bg-indigo-50">
@@ -182,8 +197,8 @@ export default function ManagerDashboard() {
                   }
                 </>
               ))}
-              {data.activityStats.length === 0 && (
-                <tr><td colSpan={6} className="px-5 py-8 text-center text-sm text-gray-400">No activities assigned yet</td></tr>
+              {activityStats.length === 0 && (
+                <tr><td colSpan={6} className="px-5 py-8 text-center text-sm text-gray-400">{loading ? "Loading activities..." : "No activities assigned yet"}</td></tr>
               )}
             </tbody>
           </table>
@@ -209,7 +224,7 @@ export default function ManagerDashboard() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {data.projectStats.map((p, i) => {
+                {projectStats.map((p, i) => {
                   const pct = p.total ? Math.round((p.completed / p.total) * 100) : 0
                   return (
                     <tr key={i} className="hover:bg-gray-50">
@@ -228,8 +243,8 @@ export default function ManagerDashboard() {
                     </tr>
                   )
                 })}
-                {data.projectStats.length === 0 && (
-                  <tr><td colSpan={5} className="px-5 py-8 text-center text-sm text-gray-400">No project data yet</td></tr>
+                {projectStats.length === 0 && (
+                  <tr><td colSpan={5} className="px-5 py-8 text-center text-sm text-gray-400">{loading ? "Loading project data..." : "No project data yet"}</td></tr>
                 )}
               </tbody>
             </table>
@@ -256,7 +271,7 @@ export default function ManagerDashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {data.executorStats.map(e => {
+              {executorStats.map(e => {
                 const pct = e.total ? Math.round((e.completed / e.total) * 100) : 0
                 return (
                   <tr key={e.id} className="hover:bg-gray-50">
@@ -288,8 +303,8 @@ export default function ManagerDashboard() {
                   </tr>
                 )
               })}
-              {data.executorStats.length === 0 && (
-                <tr><td colSpan={6} className="px-5 py-8 text-center text-sm text-gray-400">No executors assigned yet</td></tr>
+              {executorStats.length === 0 && (
+                <tr><td colSpan={6} className="px-5 py-8 text-center text-sm text-gray-400">{loading ? "Loading executors..." : "No executors assigned yet"}</td></tr>
               )}
             </tbody>
           </table>

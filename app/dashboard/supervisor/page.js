@@ -7,8 +7,17 @@ import {
 import StatCard from "@/components/dashboard/StatCard"
 import Badge from "@/components/ui/Badge"
 
+const defaultSupervisorData = {
+  completed: 0,
+  ongoing: 0,
+  delayed: 0,
+  projectStats: [],
+  managerStats: [],
+  executorStats: [],
+}
+
 export default function SupervisorDashboard() {
-  const [data, setData]       = useState(null)
+  const [data, setData]       = useState(defaultSupervisorData)
   const [loading, setLoading] = useState(true)
   const [view, setView]       = useState("project")
   const [drillFilter, setDrillFilter] = useState("ALL")
@@ -51,6 +60,7 @@ export default function SupervisorDashboard() {
   useEffect(() => { load() }, [])
 
 
+  const projectStats = data?.projectStats || []
   const userStats = [
     ...(data?.managerStats || []),
     ...(data?.executorStats || []),
@@ -124,7 +134,7 @@ export default function SupervisorDashboard() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {data.projectStats.map(p => {
+                {projectStats.map(p => {
                   const pct = p.total ? Math.round((p.completed / p.total) * 100) : 0
                   return (
                     <tr key={p.id} className="hover:bg-gray-50 transition-colors">
@@ -146,8 +156,8 @@ export default function SupervisorDashboard() {
                     </tr>
                   )
                 })}
-                {data.projectStats.length === 0 && (
-                  <tr><td colSpan={5} className="px-5 py-8 text-center text-sm text-gray-400">No projects yet</td></tr>
+                {projectStats.length === 0 && (
+                  <tr><td colSpan={5} className="px-5 py-8 text-center text-sm text-gray-400">{loading ? "Loading projects..." : "No projects yet"}</td></tr>
                 )}
               </tbody>
             </table>
