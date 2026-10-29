@@ -25,13 +25,13 @@ export default function EditTemplatePage() {
       if (!res.ok) { setError("Template not found"); setLoading(false); return }
       setName(json.name)
       setDesc(json.description || "")
-      setActivities(json.activities.map(a => ({
+      setActivities((json.activities || []).map(a => ({
         name:          a.name,
         description:   a.description  || "",
         estimatedDays: a.estimatedDays,
         prePerson:     a.prePerson    || "",
         postPerson:    a.postPerson   || "",
-        subTasks:      a.subTasks.map(s => ({
+        subTasks:      (a.subTasks || []).map(s => ({
           name:               s.name,
           description:        s.description        || "",
           defaultDays:        s.defaultDays,

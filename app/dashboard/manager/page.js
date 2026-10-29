@@ -46,11 +46,11 @@ export default function ManagerDashboard() {
       }
       const dashJson = await dashRes.json()
       const execJson = await execRes.json()
-      setData(dashJson && !dashJson.error ? dashJson : { completed: 0, ongoing: 0, delayed: 0, activities: [], executorStats: [] })
+      setData(dashJson && !dashJson.error ? { ...defaultManagerData, ...dashJson } : defaultManagerData)
       setExecutors(Array.isArray(execJson) ? execJson : [])
     } catch (e) {
       console.error(e)
-      setData({ completed: 0, ongoing: 0, delayed: 0, activities: [], executorStats: [] })
+      setData(defaultManagerData)
       setExecutors([])
     } finally {
       setLoading(false)

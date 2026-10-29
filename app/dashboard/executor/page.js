@@ -64,10 +64,10 @@ export default function ExecutorDashboard() {
         throw new Error("Failed to load")
       }
       const json = await res.json()
-      setData(json)
+      setData(json && !json.error ? { ...defaultExecutorData, ...json } : defaultExecutorData)
     } catch (e) {
       console.error(e)
-      setData({ counts: { allotted: 0, onHand: 0, completed: 0, delayed: 0 }, allotted: [], onHand: [], completed: [], delayed: [], dueSoon: [] })
+      setData(defaultExecutorData)
     } finally {
       setLoading(false)
     }
@@ -122,6 +122,7 @@ export default function ExecutorDashboard() {
 
   const counts = data?.counts || { allotted: 0, onHand: 0, completed: 0, delayed: 0 }
   const currentList = (data && data[activeTab]) || []
+  const dueSoon = Array.isArray(data?.dueSoon) ? data.dueSoon : []
 
   return (
     <div className="space-y-6">
@@ -143,16 +144,16 @@ export default function ExecutorDashboard() {
         <StatCard label="Delayed"   value={counts.delayed || 0}   icon={AlertTriangle} color="red"   subtext="Past due date"         />
       </div>
 
-      {data.dueSoon?.length > 0 && (
+      {dueSoon.length > 0 && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
           <div className="flex items-center gap-2 mb-2">
             <Calendar className="w-4 h-4 text-amber-600" />
             <p className="text-sm font-semibold text-amber-800">
-              Due in next 2 working days — {data.dueSoon.length} task{data.dueSoon.length > 1 ? "s" : ""}
+              Due in next 2 working days — {dueSoon.length} task{dueSoon.length > 1 ? "s" : ""}
             </p>
           </div>
           <div className="space-y-1.5">
-            {data.dueSoon.map(s => (
+            {dueSoon.map(s => (
               <div key={s.id} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500 flex-shrink-0" />

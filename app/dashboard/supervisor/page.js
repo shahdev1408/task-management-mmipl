@@ -14,6 +14,7 @@ const defaultSupervisorData = {
   projectStats: [],
   managerStats: [],
   executorStats: [],
+  delayedSubTasks: [],
 }
 
 export default function SupervisorDashboard() {
@@ -34,10 +35,10 @@ export default function SupervisorDashboard() {
         throw new Error("Failed to load")
       }
       const json = await res.json()
-      setData(json && !json.error ? json : { completed: 0, ongoing: 0, delayed: 0, projects: [], managerStats: [], executorStats: [] })
+      setData(json && !json.error ? { ...defaultSupervisorData, ...json } : defaultSupervisorData)
     } catch (e) {
       console.error(e)
-      setData({ completed: 0, ongoing: 0, delayed: 0, projects: [], managerStats: [], executorStats: [] })
+      setData(defaultSupervisorData)
     } finally {
       setLoading(false)
     }
@@ -59,11 +60,13 @@ export default function SupervisorDashboard() {
 
   useEffect(() => { load() }, [])
 
-
-  const projectStats = data?.projectStats || []
+  const projectStats    = Array.isArray(data?.projectStats) ? data.projectStats : []
+  const delayedSubTasks = Array.isArray(data?.delayedSubTasks) ? data.delayedSubTasks : []
+  const managerStats    = Array.isArray(data?.managerStats) ? data.managerStats : []
+  const executorStats   = Array.isArray(data?.executorStats) ? data.executorStats : []
   const userStats = [
-    ...(data?.managerStats || []),
-    ...(data?.executorStats || []),
+    ...managerStats,
+    ...executorStats,
   ].filter(u => drillFilter === "ALL" || u.role === drillFilter)
 
   return (
@@ -207,7 +210,7 @@ export default function SupervisorDashboard() {
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-2">
                           <div className="w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-semibold text-indigo-700 flex-shrink-0">
-                            {u.name[0]}
+                            {u.name?.[0] || "U"}
                           </div>
                           <span className="font-medium text-gray-900">{u.name}</span>
                         </div>
@@ -268,7 +271,7 @@ export default function SupervisorDashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {data.delayedSubTasks.map(s => (
+              {delayedSubTasks.map(s => (
                 <tr key={s.id} className="hover:bg-gray-50">
                   <td className="px-5 py-3.5 font-medium text-gray-900">{s.name}</td>
                   <td className="px-4 py-3.5 text-gray-500">{s.activity?.task?.project?.code}</td>
@@ -279,7 +282,7 @@ export default function SupervisorDashboard() {
                   <td className="px-4 py-3.5"><Badge status="DELAYED">Delayed</Badge></td>
                 </tr>
               ))}
-              {data.delayedSubTasks.length === 0 && (
+              {delayedSubTasks.length === 0 && (
                 <tr><td colSpan={5} className="px-5 py-8 text-center text-sm text-gray-400">No delayed tasks 🎉</td></tr>
               )}
             </tbody>
