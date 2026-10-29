@@ -11,12 +11,12 @@ export default withAuth(
       return NextResponse.redirect(new URL(fallback === 'login' ? '/login' : `/dashboard/${fallback}`, req.url))
     }
 
-    if (pathname.startsWith('/dashboard/manager') && role !== 'MANAGER') {
+    if (pathname.startsWith('/dashboard/manager') && !['MANAGER', 'SUPERVISOR'].includes(role)) {
       const fallback = role ? role.toLowerCase() : 'login'
       return NextResponse.redirect(new URL(fallback === 'login' ? '/login' : `/dashboard/${fallback}`, req.url))
     }
 
-    if (pathname.startsWith('/dashboard/executor') && role !== 'EXECUTOR') {
+    if (pathname.startsWith('/dashboard/executor') && !['EXECUTOR', 'SUPERVISOR', 'MANAGER'].includes(role)) {
       const fallback = role ? role.toLowerCase() : 'login'
       return NextResponse.redirect(new URL(fallback === 'login' ? '/login' : `/dashboard/${fallback}`, req.url))
     }

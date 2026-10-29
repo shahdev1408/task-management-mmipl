@@ -50,11 +50,6 @@ export default function SupervisorDashboard() {
 
   useEffect(() => { load() }, [])
 
-  if (loading) return (
-    <div className="flex items-center justify-center h-64">
-      <RefreshCw className="w-5 h-5 text-gray-400 animate-spin" />
-    </div>
-  )
 
   const userStats = [
     ...(data?.managerStats || []),

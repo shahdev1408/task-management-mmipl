@@ -34,18 +34,12 @@ export default function TemplatesPage() {
     }
   }
 
-  if (loading) return (
-    <div className="flex items-center justify-center h-64">
-      <RefreshCw className="w-5 h-5 text-gray-400 animate-spin" />
-    </div>
-  )
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold text-gray-900">Task Templates</h1>
-          <p className="text-sm text-gray-500 mt-0.5">{templates.length} templates</p>
+          <p className="text-sm text-gray-500 mt-0.5">{loading ? "Loading..." : `${templates.length} templates`}</p>
         </div>
         <Link href="/templates/create"
           className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
@@ -57,8 +51,28 @@ export default function TemplatesPage() {
         <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">{error}</div>
       )}
 
+      {loading && (
+        <div className="space-y-3">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="bg-white rounded-xl border border-gray-200 p-5 animate-pulse flex items-center justify-between">
+              <div className="space-y-2">
+                <div className="h-4 w-44 bg-gray-200 rounded"></div>
+                <div className="h-3 w-28 bg-gray-100 rounded"></div>
+              </div>
+              <div className="h-4 w-16 bg-gray-100 rounded"></div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {!loading && templates.length === 0 && (
+        <div className="bg-white rounded-xl border border-gray-200 p-10 text-center text-sm text-gray-400">
+          No templates found. Click "New Template" to create one.
+        </div>
+      )}
+
       <div className="space-y-3">
-        {templates.map(t => (
+        {!loading && templates.map(t => (
           <div key={t.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition-colors">
               <button

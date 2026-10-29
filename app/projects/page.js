@@ -83,11 +83,6 @@ export default function ProjectsPage() {
     else load()
   }
 
-  if (loading) return (
-    <div className="flex items-center justify-center h-64">
-      <RefreshCw className="w-5 h-5 text-gray-400 animate-spin" />
-    </div>
-  )
 
   const FormRow = ({ isNew }) => (
     <div className={`p-5 space-y-4 ${isNew ? "bg-white rounded-xl border border-indigo-200" : "bg-indigo-50 border-b border-indigo-100"}`}>
@@ -152,7 +147,17 @@ export default function ProjectsPage() {
               </tr>
             </thead>
           <tbody>
-            {projects.length === 0 && (
+            {loading && (
+              <tr>
+                <td colSpan={4} className="px-5 py-8 text-center text-sm text-gray-400">
+                  <span className="inline-flex items-center gap-2">
+                    <RefreshCw className="w-4 h-4 text-indigo-500 animate-spin" />
+                    Loading projects...
+                  </span>
+                </td>
+              </tr>
+            )}
+            {!loading && projects.length === 0 && (
               <tr>
                 <td colSpan={4} className="px-5 py-10 text-center text-sm text-gray-400">
                   No projects yet — click New Project to add one

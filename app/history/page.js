@@ -17,11 +17,6 @@ export default function HistoryPage() {
 
   useEffect(() => { load() }, [])
 
-  if (loading) return (
-    <div className="flex items-center justify-center h-64">
-      <RefreshCw className="w-5 h-5 text-gray-400 animate-spin" />
-    </div>
-  )
 
   return (
     <div className="space-y-6">
@@ -51,7 +46,17 @@ export default function HistoryPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {history.map(h => (
+              {loading && (
+                <tr>
+                  <td colSpan={5} className="px-5 py-8 text-center text-sm text-gray-400">
+                    <span className="inline-flex items-center gap-2">
+                      <RefreshCw className="w-4 h-4 text-indigo-500 animate-spin" />
+                      Loading audit trail...
+                    </span>
+                  </td>
+                </tr>
+              )}
+              {!loading && history.map(h => (
                 <tr key={h.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-5 py-3.5 font-medium text-gray-900">
                     {h.subTask?.name}
