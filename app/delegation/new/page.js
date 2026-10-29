@@ -99,31 +99,37 @@ export default function DelegationPage() {
       </div>
 
       {/* Step indicator */}
-      <div className="flex items-center gap-0">
-        {steps.map((label, i) => {
-          const num    = i + 1
-          const active = step === num
-          const done   = step > num
-          return (
-            <div key={i} className="flex items-center flex-1">
-              <div className="flex flex-col items-center">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${
-                  done   ? "bg-emerald-500 text-white" :
-                  active ? "bg-indigo-600 text-white"  :
-                           "bg-gray-100 text-gray-400"
-                }`}>
-                  {done ? <Check className="w-4 h-4" /> : num}
+      <div className="bg-white rounded-xl border border-gray-200 p-3 sm:p-4">
+        <div className="flex items-center justify-between sm:hidden mb-2 px-1">
+          <span className="text-xs font-bold text-indigo-600">Step {step} of 4</span>
+          <span className="text-xs text-gray-700 font-medium">{steps[step - 1]}</span>
+        </div>
+        <div className="flex items-center gap-0">
+          {steps.map((label, i) => {
+            const num    = i + 1
+            const active = step === num
+            const done   = step > num
+            return (
+              <div key={i} className="flex items-center flex-1">
+                <div className="flex flex-col items-center flex-1">
+                  <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-semibold transition-colors ${
+                    done   ? "bg-emerald-500 text-white" :
+                    active ? "bg-indigo-600 text-white shadow-sm"  :
+                             "bg-gray-100 text-gray-400"
+                  }`}>
+                    {done ? <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : num}
+                  </div>
+                  <span className={`text-[11px] sm:text-xs mt-1 text-center hidden sm:block ${active ? "text-indigo-600 font-semibold" : "text-gray-400"}`}>
+                    {label}
+                  </span>
                 </div>
-                <span className={`text-xs mt-1 text-center ${active ? "text-indigo-600 font-medium" : "text-gray-400"}`}>
-                  {label}
-                </span>
+                {i < steps.length - 1 && (
+                  <div className={`flex-1 h-0.5 mx-1 sm:mx-2 sm:mb-4 ${step > num ? "bg-emerald-400" : "bg-gray-100"}`} />
+                )}
               </div>
-              {i < steps.length - 1 && (
-                <div className={`flex-1 h-0.5 mx-2 mb-4 ${step > num ? "bg-emerald-400" : "bg-gray-100"}`} />
-              )}
-            </div>
-          )
-        })}
+            )
+          })}
+        </div>
       </div>
 
       {error && (
@@ -221,27 +227,32 @@ export default function DelegationPage() {
                   <span className="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 text-xs flex items-center justify-center">{ai+1}</span>
                   {a.name}
                 </p>
-                <div className="space-y-2 ml-7">
+                <div className="space-y-2.5 ml-0 sm:ml-7">
                   {a.subTasks.map((s, si) => (
-                    <div key={si} className="flex items-center gap-2">
-                      <span className="text-xs text-gray-500 w-32 truncate">{s.name}</span>
-                      <input
-                        type="number" min="1"
-                        value={s.days}
-                        onChange={e => updateSubTask(ai, si, "days", e.target.value)}
-                        className="w-14 border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        title="Days"
-                      />
-                      <select
-                        value={s.executorId}
-                        onChange={e => updateSubTask(ai, si, "executorId", e.target.value)}
-                        className="flex-1 border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      >
-                        <option value="">Select executor...</option>
-                        {executors.map(ex => (
-                          <option key={ex.id} value={ex.id}>{ex.name}</option>
-                        ))}
-                      </select>
+                    <div key={si} className="flex flex-col sm:flex-row sm:items-center gap-2 p-2.5 sm:p-0 rounded-lg bg-gray-50/70 sm:bg-transparent border border-gray-100 sm:border-0">
+                      <span className="text-xs font-medium sm:font-normal text-gray-700 sm:text-gray-600 sm:w-36 truncate">{s.name}</span>
+                      <div className="flex items-center gap-2 flex-1">
+                        <div className="flex items-center gap-1">
+                          <span className="text-[10px] text-gray-400 sm:hidden">Days:</span>
+                          <input
+                            type="number" min="1"
+                            value={s.days}
+                            onChange={e => updateSubTask(ai, si, "days", e.target.value)}
+                            className="w-16 border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+                            title="Days"
+                          />
+                        </div>
+                        <select
+                          value={s.executorId}
+                          onChange={e => updateSubTask(ai, si, "executorId", e.target.value)}
+                          className="flex-1 border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+                        >
+                          <option value="">Select executor...</option>
+                          {executors.map(ex => (
+                            <option key={ex.id} value={ex.id}>{ex.name}</option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
                   ))}
                 </div>

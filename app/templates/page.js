@@ -73,27 +73,29 @@ export default function TemplatesPage() {
                   {t.description && <p className="text-xs text-gray-500">{t.description}</p>}
                 </div>
               </button>
-              <div className="flex items-center gap-3">
-  <span className="text-xs text-gray-400">{(t.activities || []).length} activities</span>
-  <Link href={`/templates/${t.id}/edit`}
-    className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">
-    <Pencil className="w-3.5 h-3.5" />
-  </Link>
-  <button
-    onClick={() => deleteTemplate(t.id)}
-    disabled={deleting === t.id}
-    className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-    <Trash2 className="w-3.5 h-3.5" />
-  </button>
-</div>
+              <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
+                <span className="text-[11px] sm:text-xs text-gray-400">{(t.activities || []).length} activities</span>
+                <Link href={`/templates/${t.id}/edit`}
+                  className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                  title="Edit">
+                  <Pencil className="w-3.5 h-3.5" />
+                </Link>
+                <button
+                  onClick={() => deleteTemplate(t.id)}
+                  disabled={deleting === t.id}
+                  className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  title="Delete">
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
 
             {open[t.id] && (
               <div className="px-5 pb-4 border-t border-gray-100">
                 {(t.activities || []).map((a, ai) => (
                   <div key={a.id} className="mt-3">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 text-xs flex items-center justify-center font-semibold">{ai + 1}</span>
+                    <div className="flex items-center gap-2 mb-2 flex-wrap">
+                      <span className="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 text-xs flex items-center justify-center font-semibold flex-shrink-0">{ai + 1}</span>
                       <p className="text-sm font-medium text-gray-800">{a.name}</p>
                       <span className="text-xs text-gray-400">· {a.estimatedDays}d</span>
                       {a.prePerson  && <span className="text-xs text-gray-400">· Pre: {a.prePerson}</span>}

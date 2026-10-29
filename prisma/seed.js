@@ -12,8 +12,11 @@ async function main() {
   await prisma.user.deleteMany({})
   await prisma.project.deleteMany({})
 
-  const users = await prisma.user.createMany({
-    data: [
+      // Primary role-based accounts (clear & intuitive)
+      { name: 'Admin Supervisor', email: 'supervisor@mmipl.in', password: hash('password123'), role: 'SUPERVISOR' },
+      { name: 'Project Manager',  email: 'manager@mmipl.in',    password: hash('password123'), role: 'MANAGER'    },
+      { name: 'Field Executor',   email: 'executor@mmipl.in',   password: hash('password123'), role: 'EXECUTOR'   },
+      // Backward compatibility aliases
       { name: 'Alice Supervisor', email: 'alice@test.com', password: hash('password123'), role: 'SUPERVISOR' },
       { name: 'Bob Manager',      email: 'bob@test.com',   password: hash('password123'), role: 'MANAGER'    },
       { name: 'Carol Manager',    email: 'carol@test.com', password: hash('password123'), role: 'MANAGER'    },

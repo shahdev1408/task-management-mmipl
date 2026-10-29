@@ -1,9 +1,9 @@
 "use client"
 import { signOut, useSession } from "next-auth/react"
 import { useEffect, useRef, useState } from "react"
-import { LogOut, Bell, X, AlertTriangle, Info, CheckCircle2, AlertCircle } from "lucide-react"
+import { LogOut, Bell, X, AlertTriangle, Info, CheckCircle2, AlertCircle, Menu } from "lucide-react"
 
-export default function Navbar() {
+export default function Navbar({ onOpenMobileMenu }) {
   const { data: session }           = useSession()
   const [notifs, setNotifs]         = useState([])
   const [open, setOpen]             = useState(false)
@@ -19,12 +19,12 @@ export default function Navbar() {
   }
 
   useEffect(() => {
-  if (session) loadNotifs()
-  const interval = setInterval(() => {
     if (session) loadNotifs()
-  }, 30000)
-  return () => clearInterval(interval)
-}, [session])
+    const interval = setInterval(() => {
+      if (session) loadNotifs()
+    }, 30000)
+    return () => clearInterval(interval)
+  }, [session])
 
   useEffect(() => {
     function handleClick(e) {
@@ -51,32 +51,45 @@ export default function Navbar() {
   const unread = notifs.length
 
   return (
-    <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-6">
-      <span className="text-sm text-gray-500">
-        Welcome back, <span className="font-medium text-gray-900">{session?.user?.name}</span>
-      </span>
+    <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-3 sm:px-6 z-20">
+      <div className="flex items-center gap-2 min-w-0">
+        {/* Mobile Hamburger Button */}
+        <button
+          type="button"
+          onClick={onOpenMobileMenu}
+          className="p-1.5 -ml-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg md:hidden transition-colors"
+          aria-label="Open navigation menu"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
 
-      <div className="flex items-center gap-3">
+        <span className="text-xs sm:text-sm text-gray-500 truncate max-w-[150px] sm:max-w-none">
+          Hi, <span className="font-semibold text-gray-900">{session?.user?.name || "User"}</span>
+        </span>
+      </div>
+
+      <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
 
         {/* Bell with dropdown */}
         <div className="relative" ref={ref}>
           <button
             onClick={() => { setOpen(o => !o); if (!open) loadNotifs() }}
-            className="relative p-2 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+            className="relative p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+            aria-label="Notifications"
           >
             <Bell className="w-4 h-4" />
             {unread > 0 && (
-              <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium">
+              <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center font-bold">
                 {unread > 9 ? "9+" : unread}
               </span>
             )}
           </button>
 
           {open && (
-            <div className="absolute right-0 top-11 w-80 bg-white border border-gray-200 rounded-xl shadow-lg z-50 overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+            <div className="fixed inset-x-3 top-14 sm:inset-auto sm:right-0 sm:top-11 sm:w-80 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50/50">
                 <p className="text-sm font-semibold text-gray-900">Notifications</p>
-                <button onClick={() => setOpen(false)}>
+                <button onClick={() => setOpen(false)} className="p-1 rounded hover:bg-gray-100">
                   <X className="w-4 h-4 text-gray-400 hover:text-gray-600" />
                 </button>
               </div>
@@ -98,10 +111,10 @@ export default function Navbar() {
                 ))}
               </div>
 
-              <div className="px-4 py-2 border-t border-gray-100">
+              <div className="px-4 py-2 border-t border-gray-100 bg-gray-50/50 text-right">
                 <button
                   onClick={loadNotifs}
-                  className="text-xs text-indigo-600 hover:underline"
+                  className="text-xs text-indigo-600 font-medium hover:underline"
                 >
                   Refresh
                 </button>
@@ -113,10 +126,11 @@ export default function Navbar() {
         {/* Sign out */}
         <button
           onClick={() => signOut({ callbackUrl: "/login" })}
-          className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 px-3 py-1.5 rounded-lg hover:bg-gray-50 border border-gray-200 transition-colors"
+          className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-600 hover:text-red-700 px-2 sm:px-3 py-1.5 rounded-lg hover:bg-red-50 border border-gray-200 transition-colors"
+          title="Sign out"
         >
           <LogOut className="w-4 h-4" />
-          Sign out
+          <span className="hidden sm:inline">Sign out</span>
         </button>
 
       </div>

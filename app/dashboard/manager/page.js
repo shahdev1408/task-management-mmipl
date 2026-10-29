@@ -80,7 +80,7 @@ export default function ManagerDashboard() {
   return (
     <div className="space-y-6">
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
           <h1 className="text-xl font-semibold text-gray-900">Manager Dashboard</h1>
           <p className="text-sm text-gray-500 mt-0.5">Your activities and team</p>
@@ -103,14 +103,14 @@ export default function ManagerDashboard() {
       </div>
 
       {/* View toggle */}
-      <div className="flex gap-2">
+      <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1">
         {[
           { key: "activity", label: "Activity view",  icon: BarChart3 },
           { key: "project",  label: "Project-wise",   icon: BarChart3 },
           { key: "executor", label: "User-wise",       icon: Users     },
         ].map(v => (
           <button key={v.key} onClick={() => setView(v.key)}
-            className={`flex items-center gap-2 text-sm px-4 py-2 rounded-lg border transition-colors ${view === v.key ? "bg-indigo-600 text-white border-indigo-600" : "border-gray-200 text-gray-600 hover:bg-gray-50"}`}>
+            className={`flex items-center gap-2 text-xs sm:text-sm px-3 sm:px-4 py-2 rounded-lg border whitespace-nowrap flex-shrink-0 transition-colors ${view === v.key ? "bg-indigo-600 text-white border-indigo-600" : "border-gray-200 text-gray-600 hover:bg-gray-50"}`}>
             <v.icon className="w-4 h-4" /> {v.label}
           </button>
         ))}
@@ -122,17 +122,18 @@ export default function ManagerDashboard() {
           <div className="px-5 py-4 border-b border-gray-100">
             <h2 className="text-sm font-semibold text-gray-900">Activities & sub-tasks</h2>
           </div>
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-100">
-                <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Activity</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Project</th>
-                <th className="text-center px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Done</th>
-                <th className="text-center px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Going</th>
-                <th className="text-center px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Late</th>
-                <th className="px-4 py-3"></th>
-              </tr>
-            </thead>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[600px]">
+              <thead>
+                <tr className="bg-gray-50 border-b border-gray-100">
+                  <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Activity</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Project</th>
+                  <th className="text-center px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Done</th>
+                  <th className="text-center px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Going</th>
+                  <th className="text-center px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Late</th>
+                  <th className="px-4 py-3"></th>
+                </tr>
+              </thead>
             <tbody className="divide-y divide-gray-50">
               {data.activityStats.map(a => (
                 <>
@@ -191,6 +192,7 @@ export default function ManagerDashboard() {
               )}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 
@@ -200,41 +202,43 @@ export default function ManagerDashboard() {
           <div className="px-5 py-4 border-b border-gray-100">
             <h2 className="text-sm font-semibold text-gray-900">Project-wise breakdown (your scope)</h2>
           </div>
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-100">
-                <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Project</th>
-                <th className="text-center px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Completed</th>
-                <th className="text-center px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Ongoing</th>
-                <th className="text-center px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Delayed</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Progress</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {data.projectStats.map((p, i) => {
-                const pct = p.total ? Math.round((p.completed / p.total) * 100) : 0
-                return (
-                  <tr key={i} className="hover:bg-gray-50">
-                    <td className="px-5 py-3.5 font-medium text-gray-900">{p.code} <span className="text-gray-400 font-normal">{p.name}</span></td>
-                    <td className="px-4 py-3.5 text-center"><Badge status="COMPLETED">{p.completed}</Badge></td>
-                    <td className="px-4 py-3.5 text-center"><Badge status="ONGOING">{p.ongoing}</Badge></td>
-                    <td className="px-4 py-3.5 text-center"><Badge status="DELAYED">{p.delayed}</Badge></td>
-                    <td className="px-5 py-3.5">
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                          <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${pct}%` }} />
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[550px]">
+              <thead>
+                <tr className="bg-gray-50 border-b border-gray-100">
+                  <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Project</th>
+                  <th className="text-center px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Completed</th>
+                  <th className="text-center px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Ongoing</th>
+                  <th className="text-center px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Delayed</th>
+                  <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Progress</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {data.projectStats.map((p, i) => {
+                  const pct = p.total ? Math.round((p.completed / p.total) * 100) : 0
+                  return (
+                    <tr key={i} className="hover:bg-gray-50">
+                      <td className="px-5 py-3.5 font-medium text-gray-900">{p.code} <span className="text-gray-400 font-normal">{p.name}</span></td>
+                      <td className="px-4 py-3.5 text-center"><Badge status="COMPLETED">{p.completed}</Badge></td>
+                      <td className="px-4 py-3.5 text-center"><Badge status="ONGOING">{p.ongoing}</Badge></td>
+                      <td className="px-4 py-3.5 text-center"><Badge status="DELAYED">{p.delayed}</Badge></td>
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${pct}%` }} />
+                          </div>
+                          <span className="text-xs text-gray-500 w-8">{pct}%</span>
                         </div>
-                        <span className="text-xs text-gray-500 w-8">{pct}%</span>
-                      </div>
-                    </td>
-                  </tr>
-                )
-              })}
-              {data.projectStats.length === 0 && (
-                <tr><td colSpan={5} className="px-5 py-8 text-center text-sm text-gray-400">No project data yet</td></tr>
-              )}
-            </tbody>
-          </table>
+                      </td>
+                    </tr>
+                  )
+                })}
+                {data.projectStats.length === 0 && (
+                  <tr><td colSpan={5} className="px-5 py-8 text-center text-sm text-gray-400">No project data yet</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
@@ -244,7 +248,8 @@ export default function ManagerDashboard() {
           <div className="px-5 py-4 border-b border-gray-100">
             <h2 className="text-sm font-semibold text-gray-900">User-wise breakdown (your executors)</h2>
           </div>
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[600px]">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-100">
                 <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Executor</th>
@@ -293,6 +298,7 @@ export default function ManagerDashboard() {
               )}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 

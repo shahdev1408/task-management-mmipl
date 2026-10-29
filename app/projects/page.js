@@ -141,15 +141,16 @@ export default function ProjectsPage() {
       {showForm && <FormRow isNew />}
 
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-gray-50 border-b border-gray-100">
-              <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Code</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Name</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Day 0</th>
-              <th className="w-20 px-4 py-3"></th>
-            </tr>
-          </thead>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[480px]">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-100">
+                <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Code</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Name</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Day 0</th>
+                <th className="w-20 px-4 py-3"></th>
+              </tr>
+            </thead>
           <tbody>
             {projects.length === 0 && (
               <tr>
@@ -194,6 +195,7 @@ export default function ProjectsPage() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   )

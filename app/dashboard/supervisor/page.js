@@ -118,7 +118,7 @@ export default function SupervisorDashboard() {
             <h2 className="text-sm font-semibold text-gray-900">Project-wise breakdown</h2>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm min-w-[550px]">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-100">
                   <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Project</th>
@@ -163,17 +163,17 @@ export default function SupervisorDashboard() {
       {/* User-wise table */}
       {view === "user" && (
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+          <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4 text-gray-400" />
               <h2 className="text-sm font-semibold text-gray-900">User-wise breakdown</h2>
             </div>
-            <div className="flex gap-1">
+            <div className="flex gap-1 overflow-x-auto scrollbar-none">
               {["ALL", "MANAGER", "EXECUTOR"].map(f => (
                 <button
                   key={f}
                   onClick={() => setDrillFilter(f)}
-                  className={`text-xs px-3 py-1 rounded-lg border transition-colors ${drillFilter === f ? "bg-indigo-600 text-white border-indigo-600" : "border-gray-200 text-gray-500 hover:bg-gray-50"}`}
+                  className={`text-xs px-3 py-1 rounded-lg border whitespace-nowrap transition-colors ${drillFilter === f ? "bg-indigo-600 text-white border-indigo-600" : "border-gray-200 text-gray-500 hover:bg-gray-50"}`}
                 >
                   {f === "ALL" ? "All" : f === "MANAGER" ? "Managers" : "Executors"}
                 </button>
@@ -181,7 +181,7 @@ export default function SupervisorDashboard() {
             </div>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm min-w-[700px]">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-100">
                   <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">User</th>

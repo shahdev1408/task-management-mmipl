@@ -57,7 +57,7 @@ export default function LoginPage() {
               <input type="email" required value={form.email}
                 onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                placeholder="alice@test.com" />
+                placeholder="supervisor@mmipl.in" />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
@@ -75,10 +75,38 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-6 p-3 bg-gray-50 rounded-lg">
-            <p className="text-xs text-gray-500 font-medium mb-1">Test accounts</p>
-            <p className="text-xs text-gray-500">alice@test.com · bob@test.com · dave@test.com</p>
-            <p className="text-xs text-gray-500">Password: password123</p>
+          {/* Quick Login Role Selectors */}
+          <div className="mt-6 pt-5 border-t border-gray-100">
+            <p className="text-xs font-semibold text-gray-600 mb-2.5">Quick Login by Role:</p>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => setForm({ email: "supervisor@mmipl.in", password: "password123" })}
+                className="flex flex-col items-center justify-center p-2 rounded-lg border border-purple-200 bg-purple-50/60 hover:bg-purple-100 text-purple-700 transition-colors text-center"
+              >
+                <span className="text-xs font-bold">Supervisor</span>
+                <span className="text-[10px] text-purple-600 opacity-80">Full Access</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setForm({ email: "manager@mmipl.in", password: "password123" })}
+                className="flex flex-col items-center justify-center p-2 rounded-lg border border-blue-200 bg-blue-50/60 hover:bg-blue-100 text-blue-700 transition-colors text-center"
+              >
+                <span className="text-xs font-bold">Manager</span>
+                <span className="text-[10px] text-blue-600 opacity-80">Delegation</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setForm({ email: "executor@mmipl.in", password: "password123" })}
+                className="flex flex-col items-center justify-center p-2 rounded-lg border border-emerald-200 bg-emerald-50/60 hover:bg-emerald-100 text-emerald-700 transition-colors text-center"
+              >
+                <span className="text-xs font-bold">Executor</span>
+                <span className="text-[10px] text-emerald-600 opacity-80">My Tasks</span>
+              </button>
+            </div>
+            <p className="mt-2 text-[11px] text-center text-gray-400">
+              Default password: <span className="font-mono text-gray-600 font-medium">password123</span>
+            </p>
           </div>
 
           <p className="mt-4 text-center text-sm text-gray-500">

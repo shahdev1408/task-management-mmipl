@@ -152,13 +152,13 @@ export default function SettingsPage() {
         <p className="text-sm text-gray-500 mt-0.5">Manage your account and team</p>
       </div>
 
-      <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
+      <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit max-w-full overflow-x-auto scrollbar-none">
         {tabs.map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-colors ${
               tab === t.key ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
             }`}>
-            <t.icon className="w-4 h-4" /> {t.label}
+            <t.icon className="w-4 h-4 flex-shrink-0" /> {t.label}
           </button>
         ))}
       </div>
@@ -176,7 +176,7 @@ export default function SettingsPage() {
           </div>
           <div className="border-t border-gray-100 pt-5 space-y-4">
             {profileMsg.text && <p className={msgClass(profileMsg.type)}>{profileMsg.text}</p>}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Full name</label>
                 <input value={profile.name} onChange={e => setProfile(p => ({ ...p, name: e.target.value }))}
@@ -247,7 +247,7 @@ export default function SettingsPage() {
           {showNewUser && (
             <div className="bg-white rounded-xl border border-indigo-200 p-5 space-y-4">
               <p className="text-sm font-semibold text-gray-900">New user</p>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {[
                   { label: "Full name", key: "name",     type: "text",     placeholder: "John Doe"         },
                   { label: "Email",     key: "email",    type: "email",    placeholder: "john@company.com" },
@@ -287,7 +287,8 @@ export default function SettingsPage() {
                 <RefreshCw className="w-5 h-5 text-gray-400 animate-spin" />
               </div>
             ) : (
-              <table className="w-full text-sm">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm min-w-[550px]">
                 <thead>
                   <tr className="bg-gray-50 border-b border-gray-100">
                     <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">User</th>
@@ -385,6 +386,7 @@ export default function SettingsPage() {
                   )}
                 </tbody>
               </table>
+              </div>
             )}
           </div>
         </div>

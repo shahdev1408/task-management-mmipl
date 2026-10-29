@@ -167,7 +167,7 @@ export default function ExecutorDashboard() {
 
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
 
-        <div className="flex border-b border-gray-100">
+        <div className="flex border-b border-gray-100 overflow-x-auto scrollbar-none">
           {TABS.map(t => {
             const count  = data.counts[t.key] || 0
             const active = activeTab === t.key
@@ -175,11 +175,11 @@ export default function ExecutorDashboard() {
             return (
               <button key={t.key}
                 onClick={() => { setActiveTab(t.key); resetForm() }}
-                className={`flex items-center gap-2 px-5 py-3.5 text-sm font-medium border-b-2 transition-colors ${
+                className={`flex items-center gap-2 px-3 sm:px-5 py-2.5 sm:py-3.5 text-xs sm:text-sm font-medium border-b-2 whitespace-nowrap flex-shrink-0 transition-colors ${
                   active ? `${c.border} bg-gray-50` : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50"
                 }`}>
                 {t.label}
-                <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${active ? c.badge : "bg-gray-100 text-gray-500"}`}>
+                <span className={`text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-semibold ${active ? c.badge : "bg-gray-100 text-gray-500"}`}>
                   {count}
                 </span>
               </button>
